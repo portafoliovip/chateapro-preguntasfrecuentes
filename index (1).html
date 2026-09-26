@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mesa de respuestas · Soporte Chatea PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F6EFFA;--panel:#FBF6FD;--ink:#2C1B36;--muted:#7A6688;--line:#E1CFE9;
+  --accent:#9B4F96;--accent-ink:#FFFFFF;--accent-soft:#F0DDF2;
+  --mark:#FFE0EC;--warn:#8A4B2E;--warn-bg:#FBEADA;
+  --bubble:#FBE4F0;--bubble-line:#F2C7DD;
+  --shadow:0 1px 0 rgba(44,27,54,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B1224;--panel:#241931;--ink:#F1E7F5;--muted:#B49BC2;--line:#3A2A47;
+    --accent:#D48FCB;--accent-ink:#2C1032;--accent-soft:#3A2645;
+    --mark:#5C3350;--warn:#E9B98C;--warn-bg:#33241A;
+    --bubble:#332040;--bubble-line:#4A3358;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1B1224;--panel:#241931;--ink:#F1E7F5;--muted:#B49BC2;--line:#3A2A47;
+  --accent:#D48FCB;--accent-ink:#2C1032;--accent-soft:#3A2645;
+  --mark:#5C3350;--warn:#E9B98C;--warn-bg:#33241A;
+  --bubble:#332040;--bubble-line:#4A3358;
+  --shadow:none;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+
+.app{max-width:1240px;margin:0 auto;padding:0 20px 48px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+h1{margin:0;font:700 1.4rem/1.1 "Bricolage Grotesque","Public Sans",system-ui,sans-serif;letter-spacing:-.01em}
+.sub{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 14px;font-weight:600;font-size:.9rem;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+
+.searchbox{position:relative}
+.searchbox svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted);pointer-events:none}
+#q{width:100%;padding:14px 76px 14px 44px;border:2px solid var(--line);border-radius:10px;background:var(--panel);font-size:1.05rem}
+#q:focus{border-color:var(--accent);outline:none}
+.kbd{position:absolute;right:14px;top:50%;transform:translateY(-50%);border:1px solid var(--line);border-radius:5px;padding:0 7px;font-size:.8rem;color:var(--muted);background:var(--bg)}
+#clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:6px 10px;color:var(--muted);font-weight:600;display:none}
+.has-q #clear{display:block}.has-q .kbd{display:none}
+
+.filters{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:thin}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:500;color:var(--ink)}
+.chip small{color:var(--muted);margin-left:4px;font-size:.78rem}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.75}
+.chip.zero{opacity:.45}
+.sep{flex:0 0 1px;background:var(--line);margin:4px 6px}
+
+.cols{display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);gap:28px;margin-top:16px;align-items:start}
+.count{margin:0 0 6px;color:var(--muted);font-size:.85rem}
+.list{list-style:none;margin:0;padding:0}
+.group{margin:18px 0 4px;font:700 .95rem/1.2 "Bricolage Grotesque","Public Sans",sans-serif;display:flex;justify-content:space-between;color:var(--ink)}
+.group span{font-weight:500;color:var(--muted);font-family:"Public Sans",sans-serif;font-size:.8rem}
+.row{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);border-left:4px solid transparent;padding:11px 10px 11px 12px}
+.row:hover{background:var(--panel)}
+.row[aria-current="true"]{background:var(--panel);border-left-color:var(--accent)}
+.rt{display:flex;gap:8px;align-items:baseline;font-weight:600;line-height:1.3}
+.rt .star{margin-left:auto;color:var(--accent);flex:0 0 auto}
+.code{font:500 .8rem "IBM Plex Mono",ui-monospace,Menlo,monospace;background:var(--accent-soft);color:var(--accent);padding:1px 6px;border-radius:4px;flex:0 0 auto}
+.rs{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:.88rem;margin-top:3px}
+.rm{display:flex;gap:8px;align-items:center;margin-top:5px;font-size:.78rem;color:var(--muted)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.74rem}
+.pill.ext{border-color:var(--accent);color:var(--accent)}
+.pill.mia{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.empty{padding:28px 4px;color:var(--muted)}
+.empty strong{color:var(--ink)}
+.note{margin-top:22px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+
+.detail{position:sticky;top:calc(var(--hdr,150px) + 12px + env(safe-area-inset-top,0px));max-height:calc(100dvh - var(--hdr,150px) - 28px - env(safe-area-inset-top,0px));overflow:auto;padding-right:4px}
+.placeholder{border:1px dashed var(--line);border-radius:10px;padding:40px 24px;color:var(--muted);text-align:center}
+.back{display:none;margin-bottom:10px}
+.d-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
+.d-title{margin:6px 0 14px;font:700 1.3rem/1.25 "Bricolage Grotesque","Public Sans",sans-serif;letter-spacing:-.005em}
+.who{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.who label{font-size:.85rem;color:var(--muted)}
+.who input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.bubble{background:var(--bubble);border:1px solid var(--bubble-line);border-radius:14px 14px 14px 4px;padding:12px 14px}
+.line{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.line input{margin-top:5px;accent-color:var(--accent);flex:0 0 auto}
+.line.off span{opacity:.4;text-decoration:line-through}
+#body{display:block;width:100%;margin:8px 0;padding:8px 2px;border:0;border-top:1px dashed var(--bubble-line);border-bottom:1px dashed var(--bubble-line);background:transparent;resize:none;min-height:160px;line-height:1.55;font-size:.97rem}
+#body:focus{outline:none;background:rgba(255,255,255,.18)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.actions .primary{flex:1 1 220px;padding:11px 16px;font-size:1rem}
+.hint{font-size:.8rem;color:var(--muted);margin:2px 0 0}
+.ready-label{margin:2px 0 6px;font-size:.8rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--accent)}
+.source{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+.source strong{color:var(--ink)}
+details.cfg{margin-top:10px;font-size:.88rem}
+details.cfg summary{cursor:pointer;color:var(--accent);font-weight:600}
+.cfg label{display:block;margin:8px 0 2px;color:var(--muted);font-size:.8rem}
+.cfg input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.internal{margin-top:16px;border-left:4px solid var(--warn);background:var(--warn-bg);color:var(--ink);padding:10px 12px;border-radius:0 8px 8px 0;font-size:.9rem}
+.internal b{color:var(--warn)}
+.links{margin:16px 0 0;padding:0;list-style:none;font-size:.9rem}
+.links li{margin:4px 0}
+.links a{color:var(--accent);font-weight:600;overflow-wrap:anywhere}
+
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:20px;width:min(560px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h2{margin:0 0 12px;font:700 1.2rem "Bricolage Grotesque","Public Sans",sans-serif}
+dialog label{display:block;margin:10px 0 3px;font-size:.85rem;color:var(--muted)}
+dialog input,dialog textarea,dialog select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+dialog textarea{min-height:140px;resize:vertical}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.err{color:#B3261E;font-size:.85rem;min-height:1.2em;margin-top:6px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .err{color:#FFB4AB}}
+
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:80}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:899px){
+  .app{padding:0 14px 40px}
+  .cols{grid-template-columns:1fr;gap:0}
+  .detail{position:fixed;inset:0;z-index:60;max-height:none;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateY(100%);visibility:hidden;transition:transform .22s ease,visibility 0s .22s}
+  .has-detail .detail{transform:none;visibility:visible;transition:transform .22s ease}
+  .has-detail{overflow:hidden}
+  .back{display:inline-block}
+  .placeholder{display:none}
+  .btn.hide-sm span.long{display:none}
+}
+@media (prefers-reduced-motion:reduce){.detail,#toast{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top" id="top">
+    <div class="brand">
+      <div>
+        <h1>Mesa de respuestas</h1>
+        <p class="sub">Soporte Chatea PRO: busca, ajusta y copia la respuesta.</p>
+      </div>
+      <button class="btn primary hide-sm" id="add" type="button">+ Mi respuesta</button>
+    </div>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Síntoma, código de error o palabra clave: baneo, 131049, token Dropi…" aria-label="Buscar respuestas">
+      <span class="kbd" aria-hidden="true">/</span>
+      <button id="clear" type="button" aria-label="Borrar búsqueda">Borrar</button>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filtros"></div>
+  </header>
+
+  <div class="cols">
+    <main>
+      <p class="count" id="count" aria-live="polite"></p>
+      <ul class="list" id="list"></ul>
+      <p class="note">Contenido: documentos internos de soporte de Chatea PRO, documentación de Meta y guías públicas consultadas el 20 de septiembre de 2026. Las tarifas y los límites de Meta se actualizan cada trimestre; confírmalos antes de cotizar. Tus respuestas propias y favoritos se guardan solo en este navegador.</p>
+    </main>
+    <aside class="detail" id="detail" aria-label="Detalle y borrador"></aside>
+  </div>
+</div>
+
+<dialog id="dlg">
+  <h2>Agregar mi respuesta</h2>
+  <label for="n-cat">Categoría</label>
+  <select id="n-cat"></select>
+  <label for="n-q">Pregunta o síntoma</label>
+  <input id="n-q" type="text" maxlength="160">
+  <label for="n-a">Respuesta lista para enviar</label>
+  <textarea id="n-a"></textarea>
+  <label for="n-t">Palabras clave (separadas por espacio)</label>
+  <input id="n-t" type="text">
+  <div class="err" id="n-err" role="alert"></div>
+  <div class="dlg-actions">
+    <button class="btn ghost" id="n-cancel" type="button">Cancelar</button>
+    <button class="btn primary" id="n-save" type="button">Guardar respuesta</button>
+  </div>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Datos ---------- */
+var CATS=[
+ ['inicio','Planes y arranque'],['equipo','Equipo y chat en vivo'],['usuarios','Límite de usuarios'],
+ ['whatsapp','WhatsApp y Meta'],['plantillas','Plantillas y errores'],['costos','Costos y límites'],
+ ['ia','IA y voz'],['logistica','Dropi y logística'],['ventas','Ventas, carritos y comentarios'],
+ ['difusion','Difusiones'],['pixel','Pixel y anuncios'],['meta','Meta Business (FAQ)'],['migra','Migración e integraciones']
+];
+var CATN={};CATS.forEach(function(c){CATN[c[0]]=c[1]});
+var SRC={int:'Interno',mix:'Interno + Meta',meta:'Meta',web:'Externo',mia:'Mía',soporte:'Soporte'};
+var SRC_FULL={
+ int:'Documentos internos de soporte de Chatea PRO (ChateaPro.pdf, CASOS_FRECUENTES_SOPORTE.pdf, ERRORES_MÁS_COMUNES_CHATEA_PRO_V2.pdf).',
+ mix:'Documentos internos de soporte de Chatea PRO, complementado con documentación oficial de Meta.',
+ meta:'Documentación oficial de Meta for Developers / Meta for Business.',
+ web:'Fuente pública externa (no es documentación oficial de Meta ni de Chatea PRO). Verifícala antes de citarla como oficial.',
+ mia:'Respuesta agregada por ti en esta mesa de respuestas.',
+ soporte:'Conversación real de soporte de Chatea PRO con un cliente, aportada por ti.'
+};
+
+var L={
+ fb:['Códigos de error de Meta','https://developers.facebook.com/documentation/business-messaging/whatsapp/support/error-codes'],
+ price:['Tarifas oficiales de Meta','https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing'],
+ lim49:['Límites de marketing por usuario (Meta)','https://developers.facebook.com/documentation/business-messaging/whatsapp/templates/marketing-templates/per-user-limits'],
+ cat:['Categorización de plantillas (Meta)','https://developers.facebook.com/documentation/business-messaging/whatsapp/templates/template-categorization'],
+ status:['Estado de la API de WhatsApp','https://metastatus.com/whatsapp-business-api'],
+ plt:['Video: crear y mapear plantillas (desde 7:30)','https://www.loom.com/share/d86d4cd8d23e4e48a20d1a2532e19185'],
+ dropi:['Video: integrar Dropi','https://www.loom.com/share/3c277089989c4a8a9622c3441a092f82?sid=e974cecc-76d9-48'+'01-b6b5-fbefc8815d14'],
+ oai:['Video: integrar OpenAI','https://www.loom.com/share/d7bc401e9245407b80837fa22d0bd67f?sid=b447b765-ecac-43'+'13-aa3c-1dd7f21c9319'],
+ shop:['Video: integrar Shopify','https://www.loom.com/share/77d2fcd178d94f77bb089656e9660a8d?sid=3d58ebc0-dd6d-41'+'ff-a142-be56f07dd925'],
+ del:['Video: eliminar usuarios del bot','https://drive.google.com/file/d/1tk5CQbXxbb2Lobz9DrnjqCHKnCIaKq1y/view'],
+ lim:['Guía de límites de mensajería (respond.io)','https://respond.io/help/whatsapp/whatsapp-messaging-limits'],
+ help:['Centro de ayuda de Meta para empresas','https://es-la.facebook.com/business/help'],
+ adsMk:['Cómo crear anuncios de clic a WhatsApp (WhatsApp Business)','https://whatsappbusiness.com/es-la/products/create-ads-that-click-to-whatsapp/'],
+ obj:['Elegir el objetivo de campaña (Ayuda de Meta)','https://www.facebook.com/business/help/447934475640650?id=371525583593535'],
+ verif:['Guía de verificación del negocio (Ayuda de Meta)','https://www.facebook.com/business/help/2058515294227817?id=180505742745347'],
+ capi:['API de conversiones: parámetros (Meta for Developers)','https://developers.facebook.com/documentation/ads-commerce/conversions-api/parameters'],
+ auto:['Eventos de mensajería con ctwa_clid (Meta for Developers)','https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/automatic-events-api'],
+ pxv:['Video: integrar Meta Conversions','https://storage.googleapis.com/chateapro-assistant-tutorials/integraciones-requeridas/Integraciones_%20Meta%20conversions%20API.mp4'],
+ instr:['Instructivo paso a paso con capturas: conectar el píxel y la API de Conversiones','https://claude.ai/artifact/GYCdut7Zr7U4TP75qyPyJn']
+};
+
+var E=[];
+function A(c,q,a,o){o=o||{};E.push({id:E.length+1,c:c,q:q,a:a,k:o.k||'',t:o.t||'',s:o.s||'int',i:o.i||'',l:o.l||[]})}
+
+/* --- Planes y arranque --- */
+A('inicio','¿Cómo instalo Chatea PRO?',
+'Solo tienes que registrarte en chateapro.app/register y puedes comenzar de inmediato. Todo el proceso es guiado: la plataforma te muestra los videos instructivos cuando los necesitas.\n\nAdemás, en la academia de Skool encuentras los videos de la nueva versión: skool.com/chateapro/classroom',
+{t:'instalar registro registrarme empezar comenzar academia skool videos',l:[['Academia en Skool','https://www.skool.com/chateapro/classroom'],['Video resumen de instalación','https://www.loom.com/share/7559514ec83943d8a341132f6ac402a6']]});
+A('inicio','¿Qué planes hay y cuánto cuestan?',
+'Estos son los planes (precios en USD por mes). Todos incluyen 1 asistente logístico y 1 asistente gratis a elección:\n\n• 1.000 usuarios: $49. Para operaciones de 10 a 20 pedidos al día, con 5 asesores.\n• 10.000 usuarios: $109. Para 50 a 100 pedidos al día, con 5 asesores.\n• 20.000 usuarios: $189. Para 200 a 500 pedidos al día, con 5 asesores.\n• 50.000 usuarios: $399. Para más de 500 a 1.000 pedidos al día, con 10 asesores, soporte VIP y 5 bots.\n\nExtras opcionales: asistente adicional $20/mes, bot adicional (WhatsApp API, Facebook o Instagram) $10/mes y cuenta de asesor extra $10/mes. Además hay prueba gratis de 14 días.',
+{t:'precio precios costo valor plan planes mensualidad cuanto cuesta prueba gratis asesores extras',i:'Tomado del infográfico de planes del documento de soporte. Otra sección lista 1.000 webhooks diarios extra por USD 20. Confirma vigencia antes de cotizar.'});
+A('inicio','No me deja validar la actualización a la nueva versión',
+'Eso pasa porque la nueva versión todavía no está habilitada en tu cuenta. Estamos actualizando por bloques, así que te pedimos paciencia. No tenemos una fecha estimada, pero apenas tengas acceso podrás ingresar sin inconvenientes.',
+{t:'actualizacion actualizar version v2 nueva no valida acceso bloques'});
+A('inicio','¿Qué trae de nuevo la versión 2?',
+'Lo nuevo en Chatea PRO:\n\n• Cambió la forma de instalar a los expertos en ecommerce.\n• Puedes verificar el flete del pedido y el historial de entregas.\n• Integración con Google Maps para confirmar la dirección de entrega.\n• Ganchos de venta modificables según tu operación.\n• Ofertas de productos adicionales (upsell) al terminar la compra.\n• Tus compradores pueden entrar al pixel de Meta para atraer más clientes con el mismo perfil.\n• Creación rápida de productos y generación de walinks.\n• Pagos anticipados.\n• Eliminación de malos comentarios para aumentar ventas.\n• Recuperación de hasta un 50 % de carritos abandonados.\n• Control del comportamiento de la IA.',
+{t:'novedades nuevo version v2 funciones upsell walink pagos anticipados carritos'});
+A('inicio','El bot se demora mucho en contestar, ¿puedo reducir el tiempo de respuesta?',
+'No es posible ajustar el tiempo de respuesta del bot. Esos tiempos vienen predefinidos y hacen parte de la lógica interna de la plataforma: el bot responde lo más rápido posible según la conversación y están pensados para que se sienta como una charla real. Actualmente no hay ninguna opción para configurarlos.',
+{t:'lento demora tarda tiempo respuesta velocidad rapido espera'});
+A('inicio','¿Cómo creo mi link de referidos?',
+'Para crear tu link de referidos de Chatea PRO:\n\n1. Entra a referidos.chateapro.app/register.\n2. Crea tu usuario.\n3. Crea tu link indicando el nombre de tu marca o comunidad.\n4. Compártelo con tu comunidad.',
+{t:'referidos referido afiliado comision link comunidad'});
+A('inicio','¿En cuánto tiempo atienden mi caso?',
+'Los casos se atienden según su prioridad. Las emergencias (impacto crítico en la operación, sin alternativa disponible) tienen atención inmediata; la prioridad súper alta se responde en 24 horas y la prioridad media en 72 horas. Para reportar tu caso usa la burbuja azul de soporte o el formulario de tickets.',
+{t:'tiempo atencion respuesta sla ans prioridad ticket soporte urgente escalar',i:'Sale de un glosario ANS/SLA en una captura del documento, que parece ser del proceso con Desarrollo. Confirma antes de prometer tiempos a clientes.',l:[['Formulario de tickets','https://docs.google.com/forms/d/e/1FAIpQLScruNU6CTerKlSlsPvuJmr4wFTgMA9nYbz98VKFxQP'+'FP6X55Q/viewform?pli=1&pli=1']]});
+
+/* --- Equipo y chat en vivo --- */
+A('equipo','¿Dónde veo el ID del espacio de trabajo, cambio el nombre o la zona horaria?',
+'Entra a Panel principal > Espacio de trabajo. Ahí aparecen el ID del espacio de trabajo, el nombre y la zona horaria; cambia lo que necesites y da clic en «Actualizar».',
+{t:'id espacio trabajo nombre zona horaria workspace configuracion'});
+A('equipo','¿Cómo agrego a una persona a mi equipo?',
+'Ve a Panel principal > Espacio de trabajo > Miembros y escribe el correo de la persona. Ese correo debe estar registrado en chateapro.app/register. Elige un rol y guarda.\n\nLuego la persona debe entrar a chateapro.app/settings#/accounts y aceptar la invitación.',
+{t:'agregar miembro miembros equipo invitar invitacion asesor agente usuario correo'});
+A('equipo','¿Qué puede hacer cada rol de miembro?',
+'• Administrador: ve y edita todos los flujos, accede a todos los análisis y administra conexiones de canales, integraciones, comercio electrónico, plantillas y miniaplicaciones.\n• Miembro: ve y edita todos los flujos y accede a los análisis.\n• Supervisor: usa el chat en vivo con los clientes, asigna chats a distintos agentes, y accede a tableros y a estadísticas.\n• Agente: solo chat en vivo con los clientes y tableros.',
+{t:'roles rol permisos administrador supervisor agente miembro acceso'});
+A('equipo','¿Cómo pauso o reanudo la automatización en un chat?',
+'Ve a Omnicanal > abrir bot > Chat en vivo, abre el chat con el cliente y entra al perfil del usuario. Abajo encontrarás «Pausar la automatización»: elige el tiempo (por ejemplo 30 minutos) o déjala en automático.',
+{t:'pausar reanudar automatizacion pausa bot detener retomar chat en vivo'});
+A('equipo','¿Cómo muevo a un cliente de tablero?',
+'En el perfil del cliente, dentro del chat en vivo, junto a «Tablero» pulsa el ícono del lápiz y elige el tablero al que quieres moverlo.',
+{t:'tablero mover columna cambiar lapiz kanban'});
+A('equipo','¿Cómo uso las etiquetas y para qué sirven?',
+'Entra al chat con el cliente y, en el panel lateral derecho, abre la pestaña de Etiquetas y pulsa «+ Agregar». Con etiquetas puedes eliminar un usuario, reanudar la automatización cuando el bot se detiene, bloquear un contacto, entre otras acciones.',
+{t:'etiquetas etiqueta tag agregar eliminar usuario bloquear contacto'});
+A('equipo','¿Cómo creo mensajes predefinidos (atajos)?',
+'Ve a Panel principal > abrir bot > Herramientas > Mensaje predefinido y pulsa «+ Atajo». Escribe el título y el texto y guarda. Para usarlos en el chat en vivo, escribe una barra diagonal ( / ) y elige el mensaje.',
+{t:'mensajes predefinidos atajos plantillas rapidas respuestas rapidas slash barra'});
+A('equipo','¿Cómo envío audios, imágenes, videos o documentos desde el chat en vivo?',
+'Abre Omnicanal > abrir bot > Chat en vivo > el chat con el cliente y usa los íconos de la parte inferior de la caja de mensaje (audio, imagen, adjuntar archivo).',
+{t:'multimedia enviar audio imagen video documento archivo adjuntar foto pdf'});
+A('equipo','¿Dónde veo la huella del cliente?',
+'En Omnicanal > abrir bot > Chat en vivo, abre el chat con el cliente y haz clic en el ícono del carrito del panel derecho.',
+{t:'huella cliente carrito historial compras'});
+A('equipo','¿Cómo quito el sonido de las notificaciones del chat?',
+'Ve a Panel principal > abrir bot > Configuración > Chat en vivo. En «Notificaciones de escritorio de chat en vivo» marca «Sin sonido» y guarda.',
+{t:'sonido notificaciones silenciar mute alerta chat'});
+A('equipo','¿Cómo reinicio una conversación de prueba?',
+'Escribe desde el chat en vivo al número de prueba, responde desde el número de prueba, elimina el usuario y vuelve a intentarlo. Así el historial de esa prueba queda limpio.',
+{t:'eliminar historial chat prueba reiniciar limpiar conversacion test'});
+A('equipo','¿Puedo borrar solo una parte del historial de una conversación?',
+'No, no se puede eliminar solo una parte de la conversación. Lo que sí puedes hacer es eliminar al usuario y empezar una conversación nueva desde cero. Ten en cuenta que así se borra todo el historial de ese cliente, no solo una parte.\n\nPasos:\n1. Antes de eliminarlo, guarda el número de teléfono del cliente, porque lo necesitas para volver a crearlo.\n2. Elimina el usuario.\n3. Créalo de nuevo: Panel principal > Omnicanal > Abrir bot > Usuarios > Crear nuevo usuario.\n4. Envíale una plantilla de mensaje para iniciar la conversación.\n5. El cliente debe responder ese mensaje para que puedas activar el flujo.',
+{t:'borrar eliminar parte historial conversacion chat mismo cliente varios productos compras dejar solo ultima crear nuevo usuario plantilla nueva conversacion flujo',s:'int',i:'Respuesta dada por soporte a un cliente que compró varios productos y quería dejar solo la última conversación. Recuérdale guardar el número antes de eliminar el usuario. Ver también la respuesta sobre reiniciar una conversación de prueba.'});
+A('equipo','¿Cómo quito la marca de usuarios inválidos?',
+'Entra a Usuarios > Filtro > Agregar condición > Estado de la conversación > Inválido > Guardar. Selecciona todos los usuarios, abre «Acción masiva» y elige «Marcar conversación abierta».',
+{t:'invalido usuarios marca estado conversacion abrir masiva'});
+A('equipo','¿Dónde veo lo que conversó la IA con un cliente?',
+'Puedes ver el historial de la conversación en los campos de usuario del cliente (el campo de historial de IA de WhatsApp), o también en OpenAI.',
+{t:'historial conversacion ia openai campos usuario ver chat',i:'El documento lo describe de forma abreviada; confirma el nombre exacto del campo en la plataforma.'});
+A('equipo','¿Cómo guardo la data de mi espacio de trabajo?',
+'Entra a Usuarios (Omnicanal > abrir bot > Usuarios) y usa el ícono de descarga que aparece arriba a la derecha de la lista para exportar tus usuarios.',
+{t:'guardar data exportar respaldo backup usuarios descargar espacio',i:'El documento solo trae una captura sin texto. Verifica el botón exacto de exportar antes de enviar.'});
+
+/* --- Límite de usuarios --- */
+A('usuarios','Mi bot se detuvo, ¿qué reviso?',
+'Revisa estos dos puntos:\n\n1. Si tu espacio de trabajo superó el límite de usuarios de tu plan. Si es así, elimina usuarios (te dejo un video con el paso a paso).\n2. Que tu espacio de trabajo esté activo. Si ves el aviso «Tu plan ya venció», debes renovar el plan para que el bot vuelva a funcionar.',
+{t:'bot detuvo detenido parado no responde no contesta apagado plan vencido limite usuarios',l:[L.del]});
+A('usuarios','Error «Bot users in workspace is over limit»',
+'Ese error indica que tu espacio de trabajo superó el límite de usuarios o que el plan está inactivo. Elimina usuarios siguiendo el video o valida que tengas un plan activo en Chatea PRO.',
+{t:'over limit limite usuarios superado plan inactivo error',l:[L.del]});
+A('usuarios','¿Cómo activo el borrado automático de usuarios?',
+'Ve a Panel principal > abrir bot > Configuración > General > Límite de usuarios, elige el valor y guarda. Para poder activarlo, tu número de usuarios debe estar como mínimo unos 200 por debajo de tu plan (por ejemplo, plan de 1.000 con 800 usuarios).\n\nLímites recomendados:\n• Plan de 1.000 usuarios: 900\n• Plan de 10.000: 9.900\n• Plan de 20.000: 19.900\n• Plan de 50.000: 49.900',
+{t:'borrado automatico eliminar usuarios limpieza limite configurar dias',i:'El margen de 200 usuarios no coincide con los límites listados (900 en un plan de 1.000). Confirma con el equipo.',l:[L.del]});
+A('usuarios','Ya configuré la eliminación de usuarios pero cada día llego al límite',
+'Revisando la configuración de tu espacio de trabajo, el bot elimina usuarios de forma progresiva y solo a quienes no han tenido interacción. Con un flujo de mensajes tan alto no le da tiempo de limpiar. Para que no se detenga tu operación, la recomendación es cambiar a un plan con más capacidad.',
+{t:'eliminacion usuarios limite diario llega parada operacion cambiar plan alto flujo'});
+
+/* --- WhatsApp y Meta --- */
+A('whatsapp','Me da error al registrar mi número',
+'Estas son las causas más comunes:\n\n1. El número está en revisión de Meta. Entra a Meta > Cuentas de WhatsApp y valida el estado; toca esperar la aprobación (depende solo de Meta). Si quieres agilizar, cambia de número.\n2. Cambiaste credenciales en Meta. Desconecta el número en Chatea PRO y conéctalo de nuevo desde la opción «WhatsApp existente».\n3. El número tiene una cuenta de WhatsApp Business asociada. Debes eliminarla para poder usarlo.',
+{t:'registrar numero error conectar whatsapp revision meta business existente vincular'});
+A('whatsapp','Me bloquearon o baneó el número, ¿qué hago?',
+'Los bloqueos del API los controla Meta y no dependen de la plataforma. Influyen los productos que vendes (artículos «black» o de muy mala calidad llevan a bloqueo), la calidad de la fan page, la calidad de los anuncios que llevan tráfico a WhatsApp y cualquier irregularidad, que se bloquea desde lo más bajo: el API de WhatsApp.\n\nQué hacer:\n1. Primero apela ante Meta.\n2. Si no funciona, conecta un número nuevo en otro Business Manager, con otro medio de pago.\n\nPara prevenir: verifica el Business Manager y crea las cuentas de API con la misma información de registro del BM. Aun verificados, los bloqueos pueden ocurrir.',
+{t:'baneo baneado bloqueo bloquearon suspendido suspension restringido deshabilitado inhabilitado cuenta numero meta apelar apelacion bm',i:'Para el número bloqueado se recomienda usar otro medio de pago y multilogin.',l:[['Ayuda de Meta para empresas','https://www.facebook.com/business/help']]});
+A('whatsapp','Texto para apelar el bloqueo ante Meta',
+'Estimado equipo de Meta,\n\nNos dirigimos a ustedes con carácter urgente para solicitar la revisión inmediata de la suspensión aplicada al número de WhatsApp Business asociado a nuestra cuenta empresarial. Esta suspensión está afectando gravemente nuestras operaciones diarias, ya que dependemos de WhatsApp como canal principal para la atención al cliente y la gestión de ventas.\n\nDesde el momento de la suspensión, hemos experimentado una pérdida significativa en nuestras transacciones y una interrupción en la comunicación con nuestros clientes, lo que compromete la continuidad de nuestro negocio. Creemos firmemente que esta acción se debe a un error, ya que siempre hemos cumplido con las políticas de WhatsApp Business y las directrices comerciales establecidas por Meta.\n\nSolicitamos encarecidamente que se reevalúe esta suspensión a la mayor brevedad posible.',
+{t:'apelar apelacion texto meta bloqueo baneo suspension carta reclamo',i:'Texto base del documento de soporte; reemplaza el nombre de la cuenta empresarial si aplica.'});
+A('whatsapp','¿Cómo pago el saldo pendiente de WhatsApp API?',
+'Ve a Panel principal > WhatsApp API, pulsa los tres puntos > «Consultar método de pago». Te redirige a Meta, donde puedes pagar el saldo pendiente.',
+{k:'131042',t:'saldo pendiente pago deuda meta whatsapp api metodo pago 131042 facturacion tarjeta',l:[L.fb]});
+A('whatsapp','Error al cambiar o agregar el método de pago',
+'Sigue este video para agregar o cambiar el método de pago en Meta paso a paso.',
+{t:'metodo pago cambiar agregar tarjeta error meta',l:[['Video: método de pago','https://www.loom.com/share/eeeb49f664ab417bb0a1108310d52744']]});
+A('whatsapp','¿Cómo cambio el nombre y la foto de perfil de WhatsApp?',
+'Foto: en tu portafolio comercial de Meta ve a Cuentas de WhatsApp, elige la cuenta vinculada con Chatea PRO > Administrador de WhatsApp > Perfil.\n\nNombre para mostrar: en Configuración de la empresa > Cuentas > Cuentas de WhatsApp, entra al número, abre Configuración, baja hasta «Administrador de WhatsApp», selecciona el número > Perfil > «Nombre para mostrar» y cámbialo.',
+{t:'cambiar nombre foto imagen perfil whatsapp mostrar display name logo bm'});
+A('whatsapp','¿Cómo enlazo el número al bot?',
+'Ve a Omnicanal > WhatsApp Cloud > Enlace y escribe la palabra LINK.',
+{t:'enlazar numero bot link whatsapp cloud omnicanal vincular'});
+A('whatsapp','¿Cómo conecto mi fan page o Instagram al bot?',
+'1. Panel principal > Integraciones > Facebook Business > Conectar.\n2. Omnicanal > Facebook > Enlace y escribe la palabra LINK.\n3. Si tienes Instagram: Omnicanal > Instagram > Enlace y escribe la palabra LINK.',
+{t:'fan page fanpage facebook instagram conectar enlazar messenger comentarios'});
+A('whatsapp','¿Cómo verifico la salud de mi cuenta de WhatsApp?',
+'Ve a Panel principal > WhatsApp API, haz clic en los tres puntos de la derecha y elige «Chequeo de salud». No debe registrar ningún tipo de bloqueo. Si aparece uno, envíanos una captura de pantalla.',
+{t:'salud cuenta chequeo bloqueo estado calidad whatsapp api'});
+A('whatsapp','Sale «Hubo un problema con WhatsApp: requiere WhatsApp Cloud API o 360Dialog»',
+'Al vincular el número se seleccionó «WhatsApp Business» en lugar de «WhatsApp API». Vuelve a integrar el número y elige la opción de WhatsApp API, no WhatsApp Business.',
+{t:'problema whatsapp cloud api 360dialog business app error vincular numero'});
+A('whatsapp','¿Cómo conecto WhatsApp a la fan page de otro Business Manager?',
+'Sigue este video con el paso a paso para conectar tu WhatsApp a la fan page de otro BM.',
+{t:'whatsapp fan page otro bm business manager conectar distinto espacio',l:[['Video: WhatsApp a fan page de otro BM','https://www.loom.com/share/1b970733a7fb4cf5b3611a1054afe375?sid=c13f44d0-7f1b-4f88-8550-772f3b3ce6bd']]});
+A('whatsapp','¿Cómo pago con la wallet?',
+'Sigue el paso a paso de este video. Recuerda pegar la información en el concepto del pago para que se active de forma automática.',
+{t:'wallet pago billetera pagar plan concepto activar',l:[['Video: pago por wallet','https://drive.google.com/file/d/1ExEXBCHU_5GWIZHWZYyyOnftC2IgDdzU/view?usp=sharing']]});
+A('whatsapp','¿Cómo sé si el problema viene de Meta y no de Chatea PRO?',
+'Puedes revisar el estado oficial de la API de WhatsApp Business en metastatus.com/whatsapp-business-api. Si hay una incidencia allí, los envíos pueden fallar o demorar hasta que Meta la resuelva.',
+{t:'meta caido caida estado incidencia intermitencia status api fallo general',s:'meta',l:[L.status]});
+
+/* --- Plantillas y errores --- */
+A('plantillas','No me deja enviar plantillas, aparece «Entrega fallida»',
+'Lo más probable es que esa orden no haya ingresado a Chatea PRO. Actualízala desde el panel de Órdenes: en Chatea PRO v2, en el menú izquierdo, encuentras la sección «Órdenes». Ahí puedes buscar los pedidos y enviar las plantillas que no salieron porque no recibimos el registro del pedido en Dropi.\n\n1. Selecciona los días que quieres consultar y pulsa «Buscar»: verás los últimos 100 pedidos con sus estados logísticos.\n2. Marca los que necesites.\n3. Al final, pulsa «Actualizar estado en ChateaPro». La plantilla correspondiente se envía automáticamente.',
+{t:'entrega fallida plantilla no envia ordenes panel ordenes dropi orden no ingreso webhook actualizar estado',i:'Si el motivo dice «Falta un parámetro obligatorio», es la variable vacía: revisa mapeo (ver error 131008).'});
+A('plantillas','Falta un parámetro obligatorio en la plantilla (entrega fallida)',
+'Ese error significa que a la plantilla le faltó un valor de texto. Causas comunes: no ingresó el webhook, la plantilla está mal mapeada o el mensaje se intentó enviar después de las 24 horas.\n\nQué hacer:\n1. Revisa que haya ingresado el webhook de la orden.\n2. Mapea bien la plantilla, con todas las variables llenas.\n3. Si la orden no ingresó, actualízala desde la sección «Órdenes» de Chatea PRO v2.',
+{k:'131008',t:'parametro obligatorio plantilla falta valor texto mapeo mapear webhook 24 horas 131008 variable vacia',l:[L.plt]});
+A('plantillas','Mensaje de marketing no entregado (healthy ecosystem)',
+'Meta decidió no entregar ese mensaje de marketing para mantener un ecosistema saludable. Suele pasar cuando ese cliente ya alcanzó su límite de mensajes de marketing o interactúa poco con este tipo de mensajes.\n\nQué hacer:\n1. No reintentes de inmediato: espera al menos 24 horas antes de volver a enviarlo.\n2. Si es un aviso operativo (confirmación, seguimiento), valida que la plantilla esté en categoría Utilidad y no en Marketing.\n3. Cambia el título y el cuerpo de la plantilla (puedes apoyarte en ChatGPT: comparte la de marketing y pídele varias opciones en utilidad) para que Meta no la recategorice.\n4. Evita el uso excesivo de emojis y de llamados a la acción.',
+{k:'131049',t:'131049 marketing utilidad ecosistema saludable healthy no entregado limite usuario recategorizar plantilla',s:'mix',i:'La causa es de Meta (límite de marketing por usuario). Insiste en que no reintenten en bucle.',l:[L.lim49,L.plt]});
+A('plantillas','Error 130472: el número del cliente es parte de un experimento',
+'Ese cliente forma parte de un experimento de Meta, por lo que Meta no entregó el mensaje de marketing. No se te cobra, ya que no se abrió ninguna conversación. Si el mensaje es operativo, revisa que la plantilla esté en categoría Utilidad (mismo procedimiento del error 131049).',
+{k:'130472',t:'130472 experimento marketing cliente no entrega utilidad plantilla',s:'mix',l:[L.fb]});
+A('plantillas','Error 131047: pasaron más de 24 horas desde la última respuesta del cliente',
+'WhatsApp solo permite mensajes libres durante 24 horas después de que el cliente te escribe. Pasado ese tiempo debes enviar una plantilla aprobada para reabrir la conversación. Cuando el cliente responda, se abre una nueva ventana de 24 horas para conversar sin plantilla.',
+{k:'131047',t:'131047 24 horas ventana reenganche re-engagement abrir chat despues plantilla',s:'mix',l:[L.fb]});
+A('plantillas','Error 131048: límite de envío alcanzado (spam rate limit)',
+'Meta restringió el envío desde tu número: se alcanzó el límite por mensajes bloqueados o marcados como spam, o superaste el límite diario de conversaciones que Meta te habilitó.\n\nQué hacer:\n1. Revisa el estado de calidad de tu número en WhatsApp Manager.\n2. Reduce la frecuencia de envío de plantillas y amplía el tiempo entre mensajes.\n3. Envía solo a clientes que dieron su consentimiento.\n4. Inicia la verificación de tu Business Manager para que Meta apruebe más conversaciones iniciadas; si ya está verificado, Meta irá ampliando el límite con el uso.',
+{k:'131048',t:'131048 spam rate limit limite envio plantillas calidad verificar business manager conversaciones diarias',s:'mix',i:'El documento interno lo describe como límite diario; Meta lo documenta como restricción por spam. Cubrí ambas causas.',l:[L.fb,L.lim]});
+A('plantillas','Error 131056: demasiados mensajes al mismo cliente',
+'Se enviaron demasiados mensajes desde tu número al mismo cliente en muy poco tiempo. Espera unos minutos y vuelve a intentarlo con ese cliente; a otros clientes sí puedes escribirles de inmediato.',
+{k:'131056',t:'131056 demasiados mensajes mismo cliente par limite rapido pair rate',s:'web',l:[L.fb]});
+A('plantillas','Error 131026: mensaje no entregable',
+'El mensaje no pudo entregarse al cliente. Las causas más comunes son que no haya aceptado las políticas y condiciones de Meta o que no tenga un WhatsApp actualizado. Contáctalo por otro medio.',
+{k:'131026',t:'131026 no entregable undeliverable cliente politicas whatsapp desactualizado',s:'mix',l:[L.fb]});
+A('plantillas','Error 132001: la plantilla no existe o aún no está aprobada',
+'Meta no encuentra la plantilla en ese idioma o todavía está en revisión. Las plantillas pasan por un proceso de aprobación que puede tardar entre 1 y 24 horas. Espera la aprobación; si ya pasó ese tiempo, verifica que el nombre y el idioma de la plantilla estén bien configurados.',
+{k:'132001',t:'132001 plantilla no existe aprobacion revision pendiente idioma nombre',s:'mix',l:[L.fb]});
+A('plantillas','Error 132000: número de variables distinto al de la plantilla',
+'El número de variables enviadas no coincide con las que tiene la plantilla aprobada. Revisa el mapeo de la plantilla y confirma que cada variable llegue con contenido.',
+{k:'132000',t:'132000 variables mapeo plantilla cantidad parametros distinto',s:'web',l:[L.plt]});
+A('plantillas','Error (#100) Invalid parameter',
+'Ese error aparece cuando se modificó una plantilla predeterminada o está mal mapeada. Crea una plantilla nueva o revisa que esté bien mapeada; en este video puedes ver cómo crearlas y mapearlas (desde el minuto 7:30).',
+{k:'100',t:'100 invalid parameter parametro invalido plantilla mapeo modificada',l:[L.plt]});
+A('plantillas','Error 131053: no se pudo subir el archivo multimedia',
+'Valida el formato del archivo: imágenes en JPG o PNG, videos y audios en mp4, con un tamaño inferior a 10 MB. Si usas un enlace externo y sale error 404 al descargar, carga la imagen en la mediateca de Chatea PRO y verifica que Cloudinary no esté vinculado.',
+{k:'131053',t:'131053 multimedia imagen video audio formato tamano 10 mb cloudinary 404 subir archivo',l:[L.fb]});
+A('plantillas','Error «Param text cannot have new-line/tab characters or more than 4 consecutive spaces»',
+'Las variables de la plantilla no pueden llevar saltos de línea ni tabulaciones, ni más de 4 espacios seguidos. No uses la tecla TAB para dar espacio y evita los espacios consecutivos en el texto que se envía como variable.',
+{k:'132018',t:'13201 132018 param text new line tab espacios consecutivos parametros plantilla salto de linea validation error',i:'Confirmado con la documentación oficial de Meta: el código correcto es 132018 (Template validation error), no 13201 como aparece en el documento interno.'});
+A('plantillas','Error 135000 (Generic user error)',
+'Sigue estos pasos:\n1. Elimina las plantillas de mensajes en Chatea PRO y en Meta.\n2. Desconecta el número de Chatea PRO.\n3. Elimina el número en Meta.\n4. Conecta un nuevo número.\n5. Reinstala las plantillas.\n\nSi habías usado ChatCenter, elimina todo lo relacionado con ChatCenter antes de reinstalar.',
+{k:'135000',t:'135000 generic user error generico chatcenter plantillas eliminar reinstalar numero',l:[L.fb]});
+A('plantillas','Error «Esta cuenta de WhatsApp Business tiene restringida la opción de crear plantillas»',
+'Primero valida que el número no esté bloqueado. Si no lo está, crea las plantillas manualmente cambiando el título, o cambia el número de WhatsApp API y reinstala las plantillas: Meta sigue reconociendo las plantillas anteriores. Si el número está inhabilitado, contacta a soporte.',
+{t:'create message template error restringida crear plantilla invalid parameter cuenta whatsapp business bloqueado'});
+A('plantillas','Error «Message not sent because not subscribed»',
+'El usuario está desuscrito del bot. Para suscribirlo: Omnicanal > abrir bot > Usuarios, selecciona al usuario > Acción masiva > «Suscribirse al Bot».',
+{t:'not subscribed suscribir usuario desuscrito bot mensaje no enviado accion masiva'});
+A('plantillas','Error «invalid version in json payload»',
+'Selecciona la plantilla desde el formulario y guarda. Este error suele aparecer cuando el remarketing intenta enviarse con una plantilla que aún no está mapeada.',
+{t:'invalid version json payload plantilla remarketing mapear formulario guardar'});
+A('plantillas','¿Cómo entiendo el registro de errores?',
+'Entra a Panel principal > abrir bot > Herramientas > Registro de errores. Ahí ves hora, usuario, subflujo, nodo y descripción de cada falla, y puedes filtrar y exportar. Ten en cuenta que no todos los errores afectan la operación; comparte la descripción o el código y te ayudamos a interpretarlo.',
+{t:'registro errores logs log falla ver error herramientas exportar'});
+A('plantillas','No quiero que se envíen algunas plantillas',
+'Ve a Omnicanal > abrir bot > Contenido > Campos de bot, selecciona la carpeta del asistente y abre el JSON donde están las plantillas. Borra el contenido de «namespace», «name» y «lang», dejando las comillas vacías.',
+{t:'desactivar plantilla no enviar quitar json namespace name lang campos bot'});
+A('plantillas','¿Cómo reinstalo las plantillas del asistente logístico?',
+'Ve a Chatea PRO V2 > agente logístico > Configuración general > Reinstalación de mensajes y pulsa «Reinstalar plantillas». Úsalo si no se registraron en la instalación o si cambiaste el número de WhatsApp.',
+{t:'reinstalar plantillas asistente logistico configuracion general cambio numero'});
+A('plantillas','¿Cómo cambio la imagen de la plantilla de confirmación?',
+'Sigue este video con el paso a paso.',
+{t:'imagen plantilla confirmacion cambiar foto',l:[['Video: cambiar imagen de confirmación','https://www.loom.com/share/d4fc1ad7e9cf48da916608914c6645dc?sid=a91bd827-f445-4896-86b1-5061bb3d1d82']]});
+A('plantillas','¿Qué diferencia hay entre plantillas de marketing, utilidad y autenticación?',
+'• Marketing: promociones, ofertas y mensajes de reenganche. Es la categoría más costosa.\n• Utilidad: mensajes sobre una transacción en curso, como confirmar un pedido o informar su estado. Cuesta menos, y si se envía con la ventana de 24 horas abierta no se cobra.\n• Autenticación: códigos de verificación y accesos.\n\nMeta define la categoría según el contenido: si incluye descuentos o lenguaje promocional, la trata como marketing aunque tú la hayas creado como utilidad.',
+{t:'categorias plantilla marketing utilidad autenticacion diferencia categoria que es',s:'meta',l:[L.cat,L.price]});
+A('plantillas','Meta cambió mi plantilla de utilidad a marketing, ¿qué hago?',
+'Meta puede recategorizar una plantilla según su contenido. Como la categoría vigente al momento del envío es la que se cobra, conviene corregirla:\n\n1. Quita lenguaje promocional, descuentos, llamados a la acción y exceso de emojis.\n2. Deja el texto puramente informativo sobre el pedido.\n3. Crea la plantilla con otro título y, si Meta se equivocó, solicita la revisión de categoría desde el Administrador de WhatsApp.',
+{t:'recategorizar recategorizada cambio categoria marketing utilidad meta plantilla cobro mas caro',s:'mix',l:[L.cat,L.plt]});
+
+/* --- Costos y límites --- */
+A('costos','¿Por qué Meta me cobra por el API de WhatsApp?',
+'Meta cobra por cada mensaje de plantilla que se entrega (desde el 1 de julio de 2025 es por mensaje, ya no por conversación). El precio depende de la categoría de la plantilla y del país del cliente al que escribes, según el código de país de su número.\n\nLos mensajes normales (no plantilla) dentro de la ventana de 24 horas son gratis, y los mensajes que te escribe el cliente no se cobran.',
+{t:'cobro cobra meta caro costo precio factura tarifa api whatsapp por que me cobran mensaje',s:'meta',i:'El equipo interno cita que Colombia es el país más barato de Latinoamérica y que otros países pueden costar hasta 7 veces más. No lo cites como cifra exacta sin revisar el tarifario.',l:[L.price]});
+A('costos','¿Cuándo un mensaje de WhatsApp es gratis?',
+'No se cobran:\n• Los mensajes que envía el cliente a tu negocio.\n• Los mensajes que no son plantilla, enviados mientras la ventana de 24 horas está abierta.\n• Las plantillas de utilidad enviadas dentro de una ventana de 24 horas abierta.\n• Cualquier mensaje, incluidas plantillas, dentro de la ventana de 72 horas que se abre cuando el cliente te escribe desde un anuncio de clic a WhatsApp o un botón de tu página de Facebook y respondes en las primeras 24 horas (solo desde la app móvil de WhatsApp).',
+{t:'gratis gratuito sin costo ventana 24 horas 72 horas anuncio clic whatsapp free entry point utilidad cobro',s:'meta',l:[L.price]});
+A('costos','¿El precio cambia según el país del cliente?',
+'Sí. Meta cobra según el código de país del número del cliente y la categoría de la plantilla, no según el país de tu negocio. Meta solo actualiza tarifas el primer día de cada trimestre (1 de enero, abril, julio u octubre) y avisa con anticipación. Por eso el costo por mensaje puede variar de un trimestre a otro.',
+{t:'precio pais cliente tarifa tarifas cambia trimestre chile ecuador colombia mexico rate card',s:'meta',i:'Hay cambios anunciados para el 1 de octubre de 2026 en algunos mercados; verifica el tarifario vigente antes de cotizar.',l:[L.price]});
+A('costos','¿Cuántos clientes nuevos puedo escribir por día? (límites de mensajería)',
+'Meta limita cuántas personas distintas puedes contactar por día con plantillas (mensajes iniciados por tu negocio). Un portafolio nuevo parte en 250; al verificar el negocio sube a 2.000 y luego escala a 10.000, 100.000 e ilimitado según tu volumen y la calidad de tus mensajes.\n\nPuntos clave:\n• Cuenta personas únicas, no mensajes.\n• Desde octubre de 2025 el límite es por portafolio comercial y se comparte entre todos tus números.\n• Para subir de nivel debes usar al menos el 50 % de tu límite en 7 días con calidad media o alta.\n• Las conversaciones que inicia el cliente no cuentan.',
+{t:'limite mensajeria 250 2000 10000 100000 ilimitado plantillas diarias tier nivel clientes por dia verificar negocio portafolio',s:'web',i:'Las cifras varían entre guías (algunas citan 1.000 como primer nivel). Confirma en WhatsApp Manager > Límites de mensajería.',l:[L.lim]});
+A('costos','¿Qué significa la calidad del número (verde, amarillo, rojo)?',
+'Es la calificación que Meta da a tu número según cómo reaccionan los clientes a tus mensajes (bloqueos, reportes). Una calidad roja no genera un bloqueo inmediato, pero puede pausar plantillas y frenar el aumento de tus límites. Para cuidarla: envía solo a quienes aceptaron recibir mensajes, espacia las campañas y evita mensajes repetitivos.',
+{t:'calidad numero verde amarillo rojo rating quality reputacion spam bloqueos',s:'web',l:[L.lim]});
+
+/* --- IA y voz --- */
+A('ia','Error de OpenAI «You exceeded your current quota»',
+'Te quedaste sin saldo en OpenAI. Recarga desde platform.openai.com/settings/organization/billing/overview. Recuerda que el saldo de la API es independiente de una suscripción de ChatGPT.',
+{t:'openai quota saldo credito exceeded recargar api sin saldo billing chatgpt',l:[['Recargar saldo en OpenAI','https://platform.openai.com/settings/organization/billing/overview']]});
+A('ia','Error de OpenAI «Rate limit reached for gpt-4o-mini»',
+'Tu API Key superó el límite de tokens por minuto. Regístrate con un nuevo correo en OpenAI, crea una nueva API Key y vuelve a integrarla en Chatea PRO. En este video está el paso a paso.',
+{t:'rate limit reached gpt-4o-mini tokens minuto tpm openai api key limite clave nueva',l:[L.oai]});
+A('ia','¿Cómo cambio la clave API de OpenAI?',
+'Si tu API Key superó el límite, regístrate con un nuevo correo en OpenAI para renovarla y sigue este video para hacer la integración de nuevo.',
+{t:'cambiar clave api key openai renovar nueva integracion',l:[L.oai]});
+A('ia','Me están cobrando mucho en OpenAI',
+'El consumo alto suele venir del flujo del agente. Ve a Omnicanal > abrir bot > Main de agentes, borra los flujos y la carpeta, y vuelve a instalar la plantilla del Main de agentes desde el enlace de instalación (Panel principal > Instalar > siguiente paso > siguiente paso > Configuración > Chat en vivo > Main de agentes). En el asistente de comentarios, el uso de búsqueda web también puede subir el consumo; ahora existen botones para habilitar o deshabilitar cada sección.',
+{t:'cobro alto openai consumo tokens gasto caro main de agentes reinstalar comentarios busqueda web',l:[['Plantilla Main de agentes','https://chateapro.app/templates/um4i8vc4cqso40bbmd4mogwjqjdrzipi'],['Video: consumo de OpenAI','https://www.loom.com/share/e5810a87838b454e949983618f741f36']]});
+A('ia','El bot no responde con audios',
+'Revisa dos cosas en ElevenLabs: que tengas créditos (con un plan activo) y que el ID de la voz y la API key sean válidos; si no lo son, créalos de nuevo. También verifica que la API key tenga saldo.',
+{t:'audio audios voz elevenlabs eleven labs no responde nota de voz api key creditos',});
+A('ia','¿Cómo creo la API key de ElevenLabs?',
+'Crea tu cuenta en ElevenLabs y entra a My workspace > Mejorar > selecciona un plan > Desarrolladores > Claves API. Ponle un nombre, da acceso únicamente a «De texto a voz», activa «Restringir clave» y pulsa «Crear clave». Verifica que tenga saldo.',
+{t:'elevenlabs api key crear clave voz texto a voz desarrolladores'});
+A('ia','Error de OpenAI «Image URLs are only allowed for messages with role user»',
+'Es una descontextualización de la IA: no puede leer algunas imágenes. Valida el formato de los archivos multimedia (imágenes en JPG o PNG, videos y audios en mp4, menos de 10 MB).',
+{t:'openai error image urls role assistant messages invalid imagen descontextualizacion formato'});
+A('ia','El bot inventa información o no encuentra datos del producto',
+'El bot se alimenta de la información del producto que encuentra en Shopify o en la Tienda de Chatea PRO. Asegúrate de tener una descripción amplia del producto. Si la toma de Shopify, esa información debe estar en texto que se pueda copiar, no en imagen ni con protección.',
+{t:'alucina inventa no encuentra informacion producto descripcion shopify tienda ia respuesta incorrecta'});
+
+A('ia','¿Chatea PRO tiene RAG o base de conocimiento? Mi prompt necesita más de 12.000 caracteres',
+'Chatea PRO no cuenta con un RAG, es decir, con una base de conocimiento aparte que el asistente consulte solo cuando la necesita. Por eso el límite del prompt (12.000 caracteres) no se puede ampliar por esa vía.\n\nLo que sí puedes hacer para aprovechar mejor el espacio:\n1. Mueve la información de cada producto a su descripción en la tienda (Shopify o la Tienda de Chatea PRO). El bot lee esa descripción, así que no ocupa espacio del prompt. Debe estar en texto que se pueda copiar, no en imagen.\n2. Comprime el prompt: quita repeticiones, usa viñetas cortas y formato de «dato: valor» en lugar de párrafos largos.\n3. Separa la información por producto: cada producto tiene su propio prompt, así que puedes repartir el contenido en vez de concentrarlo todo en uno.',
+{k:'RAG',t:'rag base de conocimiento ventana de contexto contexto prompt limite 12000 caracteres 12.000 texto largo resumir documentos embeddings asistente instrucciones larga',s:'int',i:'Soporte de Chatea PRO confirmó que la plataforma no tiene RAG. Los puntos 1 y 3 salen de los documentos internos; no está confirmado si la descripción del producto tiene su propio límite de caracteres ni si los 12.000 caracteres son por producto, así que valídalo con soporte antes de prometerlo. Recuerda la diferencia si el cliente pregunta: un RAG guarda el texto completo en fragmentos y trae solo los relevantes en cada pregunta; resumir el texto es comprimirlo.'});
+
+/* --- Dropi y logística --- */
+A('logistica','¿Cómo renuevo el token de Dropi?',
+'1. En Panel principal > Integraciones > Dropi, elimina la integración.\n2. Entra a Chatea PRO V2 > Integraciones y elimina la integración con Dropi.\n3. En Dropi > Mis integraciones, elimina la integración con Chatea PRO.\n4. Sigue el video para integrarlo nuevamente.',
+{t:'token dropi renovar reconectar integracion expiro vencido',l:[L.dropi,['Video: reconectar token de Dropi','https://drive.google.com/file/d/1eeVyXXan3i8FC7V0OvZOdHP0WzyQrViz/view']]});
+A('logistica','No ingresan las confirmaciones de pedidos',
+'Prueba en este orden:\n1. Haz una nueva integración con Dropi.\n2. En Dropi > Configuración > Configuración de la tienda, el estado debe estar en «pendiente confirmación».\n3. Si usas Dropify, integra de nuevo siguiendo el video.\n4. Si nada funciona, desvincula el producto de Dropify y vuelve a vincularlo cuando todo lo demás esté correcto.',
+{t:'confirmaciones no ingresan pedidos dropi dropify pendiente confirmacion webhook orden',l:[L.dropi,['Video: integrar Dropify','https://www.youtube.com/watch?v=Hf8wALpbxNM']]});
+A('logistica','¿Cómo verifico que el webhook de Dropi esté llegando?',
+'En Dropi > Mis integraciones, dentro de la integración con Chatea PRO, el campo «Webhook» debe tener la URL de Chatea PRO. El flujo es: llega el webhook, ingresa al chat y se activa el flujo. Si un pedido no ingresó, actualízalo desde la sección «Órdenes» de Chatea PRO v2 y, si hace falta, agrega la etiqueta «reenviar mensaje logístico» para buscar el último estado en Dropi.',
+{t:'webhook dropi llega ingreso pedido url integracion reenviar mensaje logistico'});
+A('logistica','Vendo en Colombia y quiero empezar a vender en Ecuador (u otro país) con Chatea PRO, ¿qué debo hacer?',
+'Como ya vendes en Colombia, para operar en Ecuador (o cualquier país nuevo) debes hacer esto:\n\n1. Crea tu cuenta de Dropi de ese país (por ejemplo, Dropi Ecuador). Cada país tiene su propia cuenta y su propia URL de API en Dropi.\n2. Crea un nuevo espacio de trabajo en Chatea PRO, exclusivo para ese país. No lo mezcles con el espacio de trabajo de Colombia.\n3. En ese nuevo espacio de trabajo, integra la cuenta de Dropi del país correspondiente.\n4. Configura ese espacio de trabajo en la región de ese país.\n5. Integra ahí también tu tienda de Shopify, siguiendo la guía de integración y usando el dominio correcto de tu tienda.\n\nCon esto, cada país queda con su propio espacio de trabajo, su propia integración de Dropi y su propia configuración, sin mezclar los pedidos de un país con los de otro.\n\nAntes de activar los pedidos, confirma con soporte si la validación automática del flete ya está habilitada para ese país (o si toca desactivarla temporalmente) y qué transportadoras están disponibles para despachar allá.',
+{t:'colombia ecuador otro pais vender nuevo espacio de trabajo dropi por pais multipais operar en otro pais region shopify multiples paises expandir',s:'int',i:'Confirma con soporte, antes de prometerlo al cliente, si la validación de flete ya está habilitada para el país en cuestión: los documentos internos se contradicen (una parte dice que solo funciona en Colombia, otra que ya funciona en varios países excepto Argentina y Perú). También confirma qué transportadoras están disponibles para ese país. Cada país de Dropi tiene su propia URL de API: Colombia api.dropi.co, México api.dropi.mx, Ecuador api.dropi.ec, Perú api.dropi.pe, Chile api.dropi.cl, Panamá api.dropi.pa, España api.dropi.com.es, Paraguay api.dropi.com.py.'});
+A('logistica','No puedo enviar mensajes del producto, ¿cómo lo activo manualmente?',
+'Sigue estos pasos:\n1. Ingresa al chat con el cliente.\n2. Ve a Campos de usuario personalizados.\n3. Pulsa «Agregar».\n4. En el campo personalizado escribe «Producto a activar».\n5. En el valor escribe el nombre exacto del producto (tal como está configurado en el agente).\n6. Pulsa «Guardar».',
+{t:'no puedo enviar mensajes producto activar manualmente campos usuario personalizados agregar valor nombre exacto guardar',s:'soporte'});
+A('equipo','Pasos para activar el bot si está pausado',
+'1. Ve a Panel principal > WhatsApp API.\n2. El estado debe figurar como «ACTIVO». Si no lo está, actívalo desde ahí.',
+{t:'activar bot pausado estado activo whatsapp api encender reactivar',s:'soporte'});
+A('equipo','¿Cómo conecto el bot a WhatsApp?',
+'1. Ve a Omnicanal > WhatsApp Cloud > Enlace.\n2. Selecciona el WhatsApp y escribe la palabra LINK.\n3. Vuelve a Omnicanal > WhatsApp API.\n4. Pulsa los tres puntos > Registrar número > Registrar > Sí.',
+{t:'conectar bot whatsapp cloud enlace link registrar numero omnicanal',s:'soporte'});
+
+A('logistica','¿Qué es un webhook?',
+'Un webhook es un aviso automático que Dropi o Shopify le envían a Chatea PRO cuando pasa algo, por ejemplo cuando cambia el estado de un pedido o cuando alguien deja un carrito. Con ese aviso Chatea PRO sabe que debe activar el flujo y enviarle el mensaje correcto a tu cliente.\n\nEl proceso es: llega el webhook, el pedido ingresa al chat y se activa el flujo. Si el webhook no llega, el pedido no ingresa y no se envía la plantilla, y por eso puede aparecer «Entrega fallida». En ese caso puedes actualizar el pedido desde la sección «Órdenes» de Chatea PRO v2.',
+{t:'webhook webhooks que es aviso automatico dropi shopify pedido estado carrito flujo url integracion no llega entrega fallida',s:'int',i:'Explicación sencilla: en vez de que Chatea PRO pregunte cada tanto si algo cambió, Dropi o Shopify avisan en el momento. Es como un timbre. Para revisar si llega, ver la respuesta sobre el webhook de Dropi.'});
+A('logistica','¿Cómo edito una orden?',
+'1. Mueve el chat a la columna «Sincronizado en Dropi».\n2. Edita la orden desde Dropi (transportadora, producto, nombre del cliente, ciudad, departamento, etc.).\n\nDesde Chatea PRO solo se puede modificar la dirección.',
+{t:'editar orden modificar pedido direccion transportadora sincronizado dropi cambiar datos'});
+A('logistica','Cambié la transportadora y sale «Error al sincronizar en Dropi»',
+'Al cambiar la transportadora, el sistema anula el pedido anterior y crea uno nuevo en Dropi con la nueva transportadora. Si sale error, puede ser porque no encontró la transportadora con la que se va a subir el pedido. Vuelve a intentarlo con la etiqueta «Reanudar automatización» o moviendo al cliente a la columna «Sincronizado en Dropi». En los asistentes de ventas y logístico, modifica la transportadora solo en el campo de transportadora.',
+{t:'error sincronizar dropi transportadora cambiar anula pedido nuevo metodo put reanudar automatizacion'});
+A('logistica','Sale «La transportadora INTERRAPIDISIMO no fue encontrada»',
+'Escribe «interrapidisimo» en los campos de usuario de transportadora y de transportadora de respaldo. El caso ya fue reportado y se corregirá. Además, con la última actualización del asistente logístico los pedidos se confirman en Dropi de forma automática aunque falle la validación de la transportadora.',
+{t:'interrapidisimo transportadora no encontrada error flete validacion respaldo'});
+A('logistica','«Hubo un error en el proceso con las transportadoras» (error desconocido)',
+'La validación del flete puede fallar según el país. Si el problema persiste, desactiva el flete para dejar de recibir ese mensaje. Con la última actualización, los pedidos se confirman en Dropi aunque falle la validación del flete.',
+{t:'error proceso transportadoras desconocido flete validacion pais guatemala argentina peru desactivar',i:'Una parte del documento dice que la validación solo funciona en Colombia; una actualización posterior indica que ya funciona en otros países excepto Argentina y Perú, y hay una pregunta abierta sobre Guatemala y Argentina. Confirma el estado por país.'});
+A('logistica','Error al subir el pedido a Dropi (producto privado, sin stock, error desconocido)',
+'Lee el motivo que muestra el mensaje:\n• Producto privado sin unidades asignadas a tu usuario: pide a Dropi que asigne unidades.\n• Producto sin stock en ninguna bodega: espera reposición o cambia de producto.\n• Error desconocido: puede requerir renovar el token, corregir el nombre de la ciudad o poner el ID correcto del producto. A veces también es por marcar un producto simple como variable (o al revés); cambia el campo «¿Es Variable?» a true o false.\n\nDespués de corregir, mueve al cliente a la columna «Subido a Dropi» o súbelo manualmente desde tu cuenta de Dropi.',
+{t:'subir pedido dropi error producto privado sin stock bodega desconocido variable simple ciudad token id',i:'Si no entiende el error, pídele una captura de pantalla.'});
+A('logistica','¿Cómo creo productos en la tienda de Chatea PRO?',
+'Ve a Panel principal > Tienda > Agregar producto y completa:\n• Título: nombre del producto en Dropi.\n• Descripción y imagen del producto.\n• Activa el botón «Disponible».\n• SKU: el ID del producto en Dropi.\n• Activa el control de inventario si quieres manejar stock.\n\nAdemás, en el agente logístico entra a Datos de la tienda > Obtención de datos y selecciona «Ecommerce interno de Chatea PRO».',
+{t:'crear producto tienda chatea pro agregar sku dropi ecommerce interno inventario stock descripcion'});
+A('logistica','Error al «Generar producto en segundos»',
+'Revisa en Dropi que el ID del producto corresponda a un producto real. Si sí lo es, repórtalo al equipo de desarrollo indicando el ID del espacio de trabajo y el país. Si usas Shopify, el ID del producto está al final de la URL; úsalo cuando el producto tenga información en la descripción y, si no, crea el producto con la URL de la landing.',
+{t:'generar producto en segundos error no se pudo procesar id dropi shopify url landing',i:'Escala a Desarrollo con el ID del espacio de trabajo y el país.'});
+A('logistica','«Error al obtener producto: la integración no está conectada»',
+'La integración de Dropi no está vinculada. Vincula Dropi (te dejo el video) y vuelve a intentarlo.',
+{t:'error obtener producto integracion no conectada dropi vincular',l:[L.dropi]});
+A('logistica','«Producto/Servicio no encontrado»',
+'La IA no identificó el producto. Puede ser porque el flujo Main de agentes no está conectado, el cliente no ingresó con la palabra clave, el producto está inactivo, o quedaron palabras clave de la versión anterior vinculadas. Recuerda que la IA solo analiza palabras clave e IDs de anuncio de productos en estado Activo.\n\nQué hacer:\n• Integra el ID de anuncio.\n• Conecta el Main de agentes.\n• Para activar el producto a mano, en el campo de usuario «Producto a activar» escribe el nombre exacto del producto, tal como está configurado en el agente.',
+{t:'producto no encontrado servicio no encontrado palabra clave id anuncio activar producto main de agentes inactivo',l:[['Video: organizar ID de anuncio','https://www.loom.com/share/f24427f84b9f4be191b6561043f1a42c?sid=35a477a2-c1d3-4415-bb1e-913cc25b8075']]});
+A('logistica','¿Cómo valida la dirección el asistente? ¿Por qué no despacha a oficina Servientrega?',
+'Una dirección se considera correcta cuando incluye tipo de vía, número de la vía y número de puerta, casa o apartamento (también se aceptan manzana y casa, o vereda o finca identificables). El barrio o una referencia no son obligatorios si la dirección ya se puede ubicar. Solo se pide información cuando falta un dato que impide ubicar el lugar.\n\nSobre oficinas: no se puede despachar a oficinas de Servientrega porque no hay convenio con esa transportadora. Solo se despacha a oficinas de Interrapidísimo o a puntos Drop de Coordinadora.',
+{t:'direccion validar oficina servientrega interrapidisimo coordinadora drop punto convenio incompleta rural barrio referencia'});
+A('logistica','¿Cómo uso las etiquetas del asistente logístico?',
+'• «Reenviar mensaje logístico»: busca el último estado en Dropi y continúa el proceso en Chatea PRO (úsala después de verificar que el webhook no haya ingresado).\n• «Desactivar agente»: el agente deja de funcionar en ese chat y en los agentes que ingresen después.\n• «Eliminar usuarios en 24 horas»: cuando los clientes están en el tablero de cancelados, se debe quitar para frenar la eliminación si el cliente así lo quiere.\n• «Ver historial del cliente»: sirve para cualquier agente.',
+{t:'etiquetas logistico reenviar mensaje logistico desactivar agente eliminar usuarios 24 horas ver historial cancelados'});
+A('logistica','«Tiempo excedido» al instalar un asistente',
+'Por lo general el asistente sí se instala aunque salga ese error. Espera unos minutos y revisa si ya aparece instalado.',
+{t:'tiempo excedido instalar asistente instalacion demora error timeout'});
+A('logistica','Error al enviar multimedia (Cloudinary, error 404)',
+'Carga las imágenes en la mediateca de Chatea PRO y verifica que no esté vinculado Cloudinary. También revisa que el formato sea JPG o PNG en imágenes y mp4 en video y audio, con menos de 10 MB.',
+{t:'multimedia envio error cloudinary mediateca imagen 404 entrega fallida',l:[L.fb]});
+A('logistica','¿Cómo instalo un bot monocanal de WhatsApp?',
+'1. Instala la plantilla de bot de WhatsApp en el bot monocanal.\n2. Instala el Main de agentes y configúralo como flujo predeterminado.\n3. Instala manualmente el agente que el cliente desee. En un bot monocanal de WhatsApp solo se pueden instalar los agentes de ventas por WhatsApp y de carritos abandonados: el agente logístico no se puede instalar.',
+{t:'bot monocanal monocanal instalar whatsapp plantilla main de agentes logistico no',l:[['Plantilla de bot de WhatsApp','https://chateapro.app/templates/np8z3sr8shk6vlovqpsasaqtmrq3l1xi'],['Plantilla Main de agentes','https://chateapro.app/templates/um4i8vc4cqso40bbmd4mogwjqjdrzipi'],['Video: bot monocanal','https://drive.google.com/file/d/13YqIKR-4sjkkXTYO4S1amjPGvv-dHesw/view?usp=sharing']]});
+
+/* --- Más errores oficiales de Meta --- */
+A('plantillas','Error 131050: el cliente pidió no recibir más mensajes de marketing',
+'Ese cliente eligió dejar de recibir mensajes de marketing tuyos por WhatsApp. No vuelvas a intentar enviarle plantillas de marketing porque no le van a llegar; sí puedes seguir enviándole mensajes de utilidad relacionados con un pedido en curso.',
+{k:'131050',t:'131050 opt out no quiere recibir marketing detener mensajes cliente stop',s:'meta',l:[L.fb]});
+A('plantillas','Error 131051: tipo de mensaje no compatible',
+'El tipo de mensaje que intentaste enviar no es compatible con la API. Revisa que estés usando un tipo de mensaje admitido (texto, imagen, documento, plantilla, etc.) antes de reenviarlo.',
+{k:'131051',t:'131051 unsupported message type tipo de mensaje no compatible',s:'meta',l:[L.fb]});
+A('plantillas','Error 131052: no se pudo descargar el archivo que envió el cliente',
+'Chatea PRO no pudo descargar el archivo multimedia que el cliente te envió. Pídele, por un medio distinto a WhatsApp, que te lo reenvíe o que te confirme el contenido.',
+{k:'131052',t:'131052 no se pudo descargar archivo multimedia cliente unable to download',s:'meta',l:[L.fb]});
+A('whatsapp','Error 131057: la cuenta de WhatsApp Business está en modo mantenimiento',
+'Tu cuenta de WhatsApp Business entró en modo mantenimiento. Suele pasar durante una actualización del límite de mensajería (throughput). Espera unos minutos y vuelve a intentarlo.',
+{k:'131057',t:'131057 mantenimiento maintenance mode cuenta whatsapp business',s:'meta',l:[L.fb]});
+A('plantillas','Error 131063: las plantillas de marketing están deshabilitadas para tu cuenta',
+'Tu plantilla es de categoría Marketing, pero el envío de plantillas de marketing por la API está deshabilitado para tu configuración. Repórtalo a soporte para revisar si se puede reactivar el envío de plantillas de marketing en tu cuenta.',
+{k:'131063',t:'131063 marketing disabled deshabilitado plantillas marketing cloud api',s:'meta',l:[L.fb]});
+A('plantillas','Error 132005: el texto traducido de la plantilla es demasiado largo',
+'La traducción automática de tu plantilla superó el largo permitido. Entra al WhatsApp Manager, revisa la traducción de la plantilla y acórtala si hace falta.',
+{k:'132005',t:'132005 texto traducido muy largo translated text too long plantilla',s:'meta',l:[L.fb]});
+A('plantillas','Error 132007: el contenido de la plantilla viola una política de WhatsApp',
+'El contenido de tu plantilla no cumple con las políticas de WhatsApp. Revisa el texto (evita lenguaje prohibido, promesas exageradas o contenido sensible) y crea la plantilla de nuevo con un contenido ajustado.',
+{k:'132007',t:'132007 viola politica whatsapp template content violates policy contenido prohibido',s:'meta',l:[L.fb]});
+A('plantillas','Error 132012: las variables de la plantilla no tienen el formato correcto',
+'Los valores que enviaste en las variables no siguen el formato que exige la plantilla (por ejemplo, un formato de fecha o de número). Revisa el mapeo y ajusta el formato de cada variable.',
+{k:'132012',t:'132012 formato incorrecto variables parametros plantilla formatted incorrectly',s:'meta',l:[L.fb,L.plt]});
+A('plantillas','Errores 132015 y 132016: la plantilla está pausada o deshabilitada por baja calidad',
+'132015: la plantilla se pausó por baja calidad y no se puede enviar hasta que la edites y Meta la vuelva a aprobar.\n132016: la plantilla se pausó demasiadas veces por baja calidad y quedó deshabilitada de forma permanente; debes crear una plantilla nueva con contenido distinto.',
+{k:'132015',t:'132015 132016 plantilla pausada baja calidad deshabilitada permanente low quality',s:'meta',l:[L.fb]});
+A('whatsapp','Errores 133005, 133006 y 133010: problemas con el PIN o el registro del número',
+'133005: el PIN de verificación en dos pasos es incorrecto (para restablecerlo, desactiva la verificación en dos pasos y crea un PIN nuevo).\n133006: el número necesita verificarse antes de registrarlo.\n133010: el número no está registrado en la plataforma de WhatsApp Business; regístralo antes de continuar.',
+{k:'133005',t:'133005 133006 133010 pin verificacion dos pasos incorrecto numero no registrado verificar',s:'meta',l:[L.fb]});
+A('whatsapp','Error 130403: tu negocio bloqueó a este cliente',
+'Este error significa que tu propia cuenta bloqueó a ese usuario en WhatsApp, por eso el mensaje no se entrega. Si quieres volver a escribirle, primero debes desbloquearlo.',
+{k:'130403',t:'130403 bloqueaste cliente business blocked end user desbloquear',s:'meta',l:[L.fb]});
+A('whatsapp','Error 130497: tu cuenta tiene restringido enviar mensajes a ciertos países',
+'Meta restringió tu cuenta de WhatsApp Business para enviar mensajes a usuarios de determinados países, según la política de mensajería de tu categoría de negocio. Revisa la política de WhatsApp Business para tu categoría antes de intentar escribirle a clientes de esos países.',
+{k:'130497',t:'130497 restriccion paises restricted countries mensajeria politica',s:'meta',l:[L.fb]});
+A('plantillas','Error 2388019: superaste el límite de 250 plantillas',
+'Una cuenta de WhatsApp Business puede tener hasta 250 plantillas de mensaje. Si llegaste a ese límite, elimina plantillas que ya no uses antes de crear una nueva.',
+{k:'2388019',t:'2388019 limite plantillas 250 message template limit exceeded eliminar',s:'meta',l:[L.fb]});
+
+/* --- Ventas, carritos y comentarios --- */
+A('ventas','No se están gestionando los carritos abandonados',
+'Reconecta el webhook de carritos y crea el evento de pedido preliminar:\n1. En Chatea PRO, reconecta el webhook en «Carritos: Receptor de webhook».\n2. En Shopify ve a Notificaciones > Webhooks, crea un webhook para carritos abandonados con evento «Creación de pedido preliminar», pega la URL de Chatea PRO (acciones especiales en el asistente de carritos), elige la versión más reciente y guarda.',
+{t:'carritos abandonados no gestiona webhook shopify pedido preliminar receptor recuperar'});
+A('ventas','Los carritos no funcionan con el checkout nativo de Shopify',
+'Los carritos no funcionan con el checkout nativo porque esos casos quedan como pedidos abandonados; funciona con el evento «creación de pedido preliminar». Si usas el formulario nativo, debes cambiar a Releasit.',
+{t:'checkout nativo shopify carritos releasit formulario pedidos abandonados no ingresan'});
+A('ventas','«Hubo un problema al subir tu carrito a Shopify: no se encontró la variante»',
+'Probablemente el producto es un upsell que no está asociado a un producto real, por lo que no tiene precio. En Releasit haz clic en «Conectar el upsell a un producto en tu tienda» y selecciona el producto.',
+{t:'subir carrito shopify variante precio upsell releasit no se encontro producto asociado',i:'Pregunta al cliente cuántos productos abandonó el comprador y si abandonó también un upsell o qué tipos de upsell maneja. Para crear un upsell: Releasit COD form > Impulsor de ventas > Upsells 1-Tick > + añadir upsell.'});
+A('ventas','El pago anticipado no se automatiza en carritos',
+'Cuando la persona entra al formulario de Releasit y elige pago anticipado, se redirige al checkout nativo de Shopify y no hay forma de saber si compró o no; por eso no se envía la plantilla y el pedido queda con la etiqueta draft_order_for_checkout_button. En una próxima actualización podrás elegir si enviar plantillas a los clientes de pago anticipado.',
+{t:'pago anticipado carritos etiqueta draft order checkout button releasit no automatiza plantilla abandonado'});
+A('ventas','El asistente de carritos no guarda mi configuración',
+'Entra a Campos de bot > Carritos > «carritos configuración» y revisa que el JSON esté completo y sin comillas o llaves de más. Ahí se guardan datos como el nombre del asesor, el descuento máximo, los tiempos de recordatorio y los métodos de pago.',
+{t:'carritos configuracion no guarda campos de bot json descuento recordatorio asesor'});
+A('ventas','¿Cómo integro Shopify?',
+'Sigue el video paso a paso y usa el dominio correcto: es el que aparece en la URL de tu tienda (el que tiene letras y números al azar).\n\nPasos nuevos en Shopify: Desarrollar apps > Permitir desarrollo de apps personalizadas heredadas > Crear app personalizada heredada > Crear una app, y continúa con el video de la academia.',
+{t:'integrar shopify tienda dominio app personalizada desarrollo conectar',l:[L.shop]});
+A('ventas','Uso Shopify y también la tienda interna de Chatea PRO, ¿cuál selecciono?',
+'Selecciona siempre Shopify. La lógica interna busca primero en Shopify y luego en el ecommerce interno, así que puedes tener ventas por WhatsApp y por landing en el mismo espacio de trabajo.',
+{t:'shopify ecommerce interno tienda chatea pro ambos origen datos ventas landing whatsapp'});
+A('ventas','El bot no responde los comentarios',
+'Revisa lo siguiente:\n• Que la fan page esté conectada (reconéctala si hace falta).\n• Que hayas colocado palabras para relacionar el post: usa palabras que estén en el texto (copy) de la publicación.\n• Que hayas puesto información del producto para que la IA sepa qué responder.\n• Que el producto esté activo.',
+{t:'comentarios no responde fan page publicacion post palabras relacionar producto activo facebook instagram'});
+A('ventas','¿Dónde modifico la página o el número de contacto que cita el asistente de comentarios?',
+'Para cambiar esa información entra al asistente de comentarios > Configuración > Información del negocio. Ahí, en los campos de «Página» y «Número de contacto», edita los datos para que el asistente use los tuyos cuando responda los comentarios de Facebook.',
+{t:'comentarios pagina numero contacto informacion del negocio configuracion asistente de comentarios facebook responde otra pagina enlace no es mia donde modifico editar',s:'int',i:'Respuesta dada por la mesa de ayuda de Chatea PRO en un caso real: la cliente veía en la respuesta del comentario una página que no era suya. Si tras corregir esos campos sigue apareciendo otra página, ver la respuesta sobre el link de otra tienda y escalar con captura y el ID del espacio de trabajo.'});
+A('ventas','El asistente de comentarios envía el link de otra tienda',
+'Primero revisa en el asistente de comentarios > Configuración > Información del negocio: ahí están la página y el número de contacto que el asistente cita en sus respuestas. Si están bien, verifica el estado de OpenAI, revisa el prompt de comentarios y haz una prueba solicitando el enlace de la campaña en Facebook. Si persiste, repórtalo a desarrollo.',
+{t:'comentarios link otra tienda enlace equivocado prompt openai campana facebook',i:'Escala a Desarrollo si persiste tras la prueba.'});
+A('ventas','El asistente de comentarios no elimina comentarios o vende productos que no existen',
+'Ya se corrigió en una actualización: ahora puedes habilitar o deshabilitar desde la lógica interna que el bot elimine comentarios, responda en público o converse por interno. Si una opción está deshabilitada, verás una nota cada vez que un usuario haga esa acción. También se eliminaron los productos de ejemplo del campo de bot y se agregó una nota que indica si un comentario no se elimina o responde por un error, como «debes reconectar la fan page».',
+{t:'comentarios no elimina alucina productos no existen ejemplo habilitar deshabilitar nota error fan page actualizacion'});
+A('ventas','La IA no recolectó los datos del cliente',
+'La IA recolecta los datos entregados en el chat pasados los 10 minutos. Si después de ese tiempo no los recolectó, repórtalo. En el prompt de los productos puedes agregar skills para que la IA continúe la interacción.',
+{t:'ia no recolecta datos cliente 10 minutos datos completados skills prompt producto',l:[['Skills de Chatea PRO','https://docs.google.com/document/d/1jzHHDNUcyPcpNsBfAbReQSWuZ6kIVWm9/edit']]});
+
+/* --- Difusiones --- */
+A('difusion','¿Cómo hago una difusión y qué debo tener en cuenta?',
+'Antes de empezar:\n1. Debes tener creada la plantilla de mensaje.\n2. Si vas a importar usuarios, el teléfono debe incluir el indicativo del país. Puedes usar la fórmula ="+57"&A1 en Excel.\n3. Debe ser un archivo de Excel (no Google Sheets) con dos columnas: nombre del cliente y teléfono con indicativo.\n\nTe dejo el video guía con todo el proceso.',
+{t:'difusion difusiones masivo masivos envio masivo broadcast excel indicativo plantilla importar usuarios',l:[['Video: cómo hacer difusiones','https://drive.google.com/file/d/1zufkCc3qitA5yfIWZzo94pcO7h0S_zfH/view?usp=sharing'],['Video: mensajes de difusión','https://drive.google.com/file/d/1wDB7SOhZO501nHnyg5k0emSiBplS0wzO/view?usp=sharing']]});
+A('difusion','Pasos para enviar una difusión masiva desde un Excel',
+'1. Prepara el Excel (no Google Sheets) con nombre y teléfono con indicativo (+57).\n2. Omnicanal > abrir bot > Contenido > Tags > crea un tag y guarda.\n3. Usuarios > Importar > Examinar > sube el Excel. En los campos coloca User name y phone. Siguiente > agrega el tag > canal WhatsApp > marca la casilla > guarda y confirma.\n4. Crea un tablero y mueve ahí a los usuarios que tengan el tag.\n5. Contenido > Plantillas: crea la plantilla con el mensaje.\n6. Flujos > + Subflujo > Web, ponle nombre > Editar flujo > agrega un nodo de mensaje con la etiqueta creada y la plantilla.\n7. Difusiones > + Difusión: agrega el flujo creado y el tablero con los usuarios del tag, elige el tiempo de envío y guarda.',
+{t:'masivos difusion excel tag tablero importar usuarios subflujo enviar plantilla pasos',l:[L.plt]});
+A('difusion','¿Cómo envío una difusión a los clientes de un tablero?',
+'Ve a Omnicanal > abrir bot > Difusiones > + Difusión > Predeterminado y pon el nombre. Pulsa «Agregar condición»: en la primera casilla elige «Tableros» y en la tercera el tablero que quieras (por ejemplo, «Contacto inicial»). Guarda, elige el subflujo (por ejemplo, el de estados logísticos) y guarda de nuevo para que se envíe el mensaje.',
+{t:'difusion tablero contacto inicial estados logisticos subflujo condicion enviar clientes'});
+
+/* --- Pixel y anuncios --- */
+A('pixel','¿Cómo conecto el pixel y qué evento se envía en cada etapa?',
+'Sigue el video para vincular el pixel. Los eventos se envían así:\n• Contacto inicial: Ver contenido.\n• Interacción con IA: Agregar al carrito.\n• Cliente potencial: Iniciar pago.\n• Datos completados, no califica, pedido programado u oficina: Comprar.',
+{t:'pixel conectar meta conversions api eventos ver contenido agregar carrito iniciar pago comprar tablero',l:[['Video: integrar Meta Conversions','https://storage.googleapis.com/chateapro-assistant-tutorials/integraciones-requeridas/Integraciones_%20Meta%20conversions%20API.mp4'],L.instr]});
+A('pixel','¿Tienes una guía escrita, paso a paso y con capturas, para conectar el píxel?',
+'Sí. Además del video, hay un instructivo escrito con capturas de pantalla que cubre todo el proceso en orden: verificar la página en el portafolio comercial, crear o reutilizar el píxel, conectarlo a la página correcta, generar el token de la API de Conversiones y, al final, vincular el píxel a cada uno de tus productos y llegar al videotutorial dentro de la plataforma (Píxel y Audiencias).\n\nÚsalo cuando el cliente prefiera ir paso a paso con imágenes en lugar de ver el video completo.',
+{t:'instructivo guia escrita capturas paso a paso conectar pixel manual pdf documento productos pixel y audiencias tutorial configuracion',s:'int',l:[L.instr,L.pxv]});
+A('pixel','¿Puedo usar un solo pixel para varios países o productos?',
+'Solo se puede configurar un pixel por URL, uno por país. No necesitas un pixel por cada nicho, pero no mezcles los países en un mismo pixel.',
+{t:'pixel varios paises un solo pixel url nicho mezclar'});
+A('pixel','En Meta veo menos ventas o eventos que en Chatea PRO',
+'Los eventos solo se envían al pixel cuando el cliente llega con el valor ctwa_clid, que es obligatorio. Si hay 100 pedidos en Chatea PRO y 90 en Meta, la diferencia suele ser por clientes sin ese valor, y en esos casos no sale nota de error: simplemente no se intenta enviar. Es común cuando:\n1. El cliente no viene de un anuncio y escribió directo por otra fuente.\n2. Entró desde WhatsApp Web (si vio el anuncio en PC y desde ahí escribió, a veces no llega con ctwa_clid ni ID de anuncio).\n3. Usa un dispositivo con bloqueo de seguimiento (algunos iPhone) o bloqueadores externos.\n\nPor eso las métricas de conversaciones iniciadas de Meta no coinciden exactamente con las de Chatea PRO.',
+{t:'eventos meta pixel menos ventas diferencia ctwa_clid conversiones metricas conversaciones iniciadas no coinciden whatsapp web ios'});
+A('pixel','Sale «El evento de Meta no pudo ser enviado» (AddToCart)',
+'Cuando el motivo es un error genérico de Meta, suele ser una intermitencia temporal en el servidor de Meta. Verifica la conexión, revisa que los parámetros enviados sean correctos, espera y reintenta. Si persiste, consulta el estado de la API de Meta o contacta a soporte.',
+{t:'evento meta no pudo ser enviado addtocart error generico pixel intermitencia',l:[L.status]});
+A('pixel','Meta dice «Tu píxel no está activo» o no muestra eventos',
+'Si el pixel es nuevo, todavía no tiene eventos, por eso aparece así. Entra al Administrador de eventos, revisa los orígenes de datos y confirma que el pixel esté conectado y recibiendo eventos después de las primeras conversaciones.',
+{t:'pixel no activo sin eventos nuevo administrador de eventos origenes de datos'});
+A('pixel','Meta me pide verificar un número de teléfono (código #3858013)',
+'No es un error de tu campaña sino un requisito de seguridad de Meta: pide verificar un teléfono a nivel de la cuenta publicitaria antes de publicar o editar anuncios. No tiene que ver con el número de WhatsApp del anuncio.\n\n1. Haz clic en «Agregar número de teléfono» en el aviso rojo (o entra a Administrador de anuncios > Configuración de la cuenta publicitaria).\n2. Ingresa un número al que tengas acceso, con código de país.\n3. Ingresa el código que Meta envía por SMS o WhatsApp.\n\nSi el código no llega, prueba el otro medio. Si el aviso persiste, cierra sesión, vuelve a entrar y refresca.',
+{k:'3858013',t:'3858013 verificar telefono cuenta publicitaria anuncios meta requisito seguridad no deja publicar campana',s:'mix'});
+A('pixel','¿Cómo pido a Meta que aumente mi umbral de gasto en anuncios?',
+'Entra a tu Business Manager > Ayuda > Contactar soporte > Hablar con un agente y escribe algo como: «Hola, tengo buen historial de pagos y estoy aumentando mi inversión. ¿Podrían analizar y evaluar un incremento en el umbral de gasto de mi cuenta publicitaria?». Si te preguntan cuánto deseas, responde: «El máximo posible, por favor».',
+{t:'umbral gasto credito meta ads aumentar limite anuncios cobra seguido pago soporte meta',i:'Consejo del documento interno; no está garantizado por Meta.'});
+
+/* --- Meta Business (FAQ) --- */
+A('meta','¿Qué es el portafolio comercial de Meta y qué tiene que ver con Chatea PRO?',
+'El portafolio comercial (antes Business Manager) es el espacio donde Meta agrupa todo lo de tu negocio: tu página de Facebook, la cuenta de Instagram, las cuentas publicitarias, los píxeles y orígenes de datos, tus cuentas de WhatsApp y las personas que colaboran contigo.\n\nChatea PRO trabaja sobre la API oficial de WhatsApp, que vive en ese portafolio. Por eso lo ideal es que la cuenta de WhatsApp, la página y la cuenta publicitaria estén en el mismo portafolio y se hayan creado con la misma información de registro del negocio: así el anuncio, el número y los eventos quedan conectados y se reducen los riesgos de bloqueo.',
+{t:'portafolio comercial business manager bm business suite configuracion negocio activos meta que es',s:'mix',i:'Lo de mantener todo en un mismo portafolio con información coherente se apoya en el documento interno (cuentas de API con la misma información del BM). Confirma con el equipo si algún caso necesita activos en portafolios distintos.',l:[L.help]});
+A('meta','¿Dónde entro a configurar mi portafolio comercial?',
+'Entra a business.facebook.com, selecciona tu portafolio comercial y haz clic en la tuerca (Configuración del negocio). Desde ahí administras las personas, las cuentas (páginas, cuentas publicitarias y cuentas de WhatsApp), los orígenes de datos (píxeles y conjuntos de datos), la información del negocio y el Centro de seguridad. Para hacer cambios importantes, quien los realice debe tener acceso total al portafolio.',
+{t:'configuracion negocio portafolio comercial tuerca business facebook com personas cuentas orígenes datos informacion negocio centro seguridad',s:'web',l:[L.help]});
+A('meta','¿Cómo verifico mi negocio en Meta?',
+'Verificar el negocio es lo que más ayuda a evitar restricciones y a ampliar tus límites de mensajería. Pasos:\n1. Completa la Información del negocio en la configuración del portafolio: nombre legal exactamente igual al de tus documentos, dirección, teléfono y un sitio web activo que muestre el nombre o logo de tu empresa.\n2. Entra al Centro de seguridad e inicia la verificación.\n3. Sube los documentos que pida Meta: existencia legal y dirección comercial (por ejemplo, registro mercantil y una factura de servicios o extracto bancario).\n4. Confirma que tienes acceso al negocio con el código que llega por correo, SMS o llamada.\n\nLa revisión puede tardar entre unos minutos y 14 días hábiles. Los rechazos suelen deberse a datos incompletos, documentos que no se ven bien o nombres que no coinciden con los documentos legales.',
+{t:'verificar verificacion negocio meta business centro seguridad documentos rechazada limite mensajeria bm verificado',s:'web',i:'Los tiempos y requisitos varían por país y caso. Cuando el estado sea «Verificado», el límite de mensajería puede subir (ver la respuesta sobre límites).',l:[L.verif,L.lim]});
+A('meta','¿Qué debo activar en el Centro de seguridad para proteger mi cuenta?',
+'Activa la autenticación de dos factores y agrega al menos un administrador adicional. Así proteges el portafolio de accesos no autorizados y evitas quedarte sin acceso si algo le pasa a una sola persona. Guarda tu segundo factor en un lugar seguro: si lo pierdes, podrías no volver a entrar a tu cuenta.',
+{t:'seguridad centro seguridad autenticacion dos factores administradores adicionales proteger cuenta hackeo acceso',s:'web'});
+A('meta','¿Cómo doy acceso a mi equipo o a una agencia en el portafolio?',
+'En Configuración del negocio ve a Personas > Agregar, escribe el correo, elige el nivel (acceso parcial o control total) y asigna los activos que necesita: página, cuenta publicitaria, Instagram o cuenta de WhatsApp. Da solo los permisos necesarios y reserva el control total para personas de mucha confianza. La persona recibirá una invitación para unirse.',
+{t:'personas permisos acceso agencia equipo agregar administrador control total parcial activos invitacion portafolio',s:'web',i:'Al conectar Facebook Business en Chatea PRO, quien hace la conexión normalmente necesita control total sobre la página y la cuenta publicitaria. Confirma el requisito exacto con el equipo.'});
+A('meta','¿Dónde veo mis cuentas de WhatsApp y el método de pago en Meta?',
+'En Configuración del negocio > Cuentas > Cuentas de WhatsApp administras las cuentas vinculadas y su perfil (nombre para mostrar y foto). El saldo pendiente y el método de pago los consultas desde Chatea PRO: Panel principal > WhatsApp API > tres puntos > Consultar método de pago, que te lleva a Meta.',
+{t:'cuentas whatsapp meta metodo de pago saldo administrador whatsapp perfil nombre foto portafolio',s:'mix'});
+A('meta','¿Qué es un origen de datos (conjunto de datos) y qué relación tiene con el píxel?',
+'Un origen de datos es el lugar donde Meta recibe los eventos de tu negocio. Hoy Meta reúne en un mismo «conjunto de datos» los eventos de tu sitio web (píxel), de apps, de tiendas físicas y de mensajería como WhatsApp, y todos llegan por la API de conversiones.\n\nCon Chatea PRO, tu conversación de WhatsApp es la fuente de los eventos: la plataforma envía al conjunto de datos vinculado a tu página cada etapa del cliente (por ejemplo, contacto inicial, interacción con IA o compra) para que Meta aprenda qué anuncios traen ventas. Los orígenes los ves en Configuración del negocio > Orígenes de datos o en el Administrador de eventos.',
+{t:'origen datos origenes de datos conjunto de datos dataset pixel administrador de eventos events manager api conversiones capi mensajeria',s:'mix',l:[L.capi,L.pxv]});
+A('meta','¿Cómo conecto el origen de eventos de mensajes (píxel) en Meta?',
+'Sigue el video de la integración de Meta Conversions. En Meta, el recorrido es este:\n1. Administrador de eventos > Conectar datos > Mensajes.\n2. Conecta la página y selecciona el píxel.\n3. Inicia la integración > Integración con socio > Configurar integración directa.\n4. Después puedes crear audiencias con tus compradores.\n\nRecuerda: solo se puede configurar un píxel por URL (uno por país), así que no mezcles países en el mismo píxel. No necesitas un píxel por cada nicho.',
+{t:'conectar origen eventos mensajes pixel administrador de eventos conectar datos integracion socio directa audiencias configurar meta conversions',s:'int',i:'La ruta sale de las notas internas del video; los nombres de los menús de Meta cambian con frecuencia, así que apóyate en el video si algo no coincide.',l:[L.pxv,L.instr]});
+A('meta','¿Qué es el ctwa_clid y por qué Meta lo exige para registrar ventas?',
+'El ctwa_clid es el identificador que Meta genera cuando una persona hace clic en un anuncio de clic a WhatsApp y te escribe. Llega dentro del primer mensaje y Chatea PRO lo guarda. Cuando ocurre la venta, la plataforma lo devuelve a Meta dentro del evento (junto con el ID de tu página); así Meta sabe qué anuncio la generó y puede optimizar. Sin ese identificador el evento no se puede asociar al anuncio, y por eso no se envía.\n\nNo llega cuando el cliente escribe directo al número, cuando entra desde WhatsApp Web o cuando su dispositivo bloquea el seguimiento.',
+{k:'ctwa_clid',t:'ctwa_clid ctwa click id clic whatsapp atribucion evento page id anuncio conversiones api business messaging',s:'mix',l:[L.auto,L.capi]});
+A('meta','¿Cómo compruebo que Meta está recibiendo los eventos de Chatea PRO?',
+'Entra al Administrador de eventos de Meta, abre el conjunto de datos (píxel) y revisa sus pestañas: Resumen (eventos recibidos; los que envía Chatea PRO llegan con método de conexión «Servidor»), Probar eventos (para ver un evento de prueba en tiempo real), Diagnóstico (avisos y errores) e Historial. Los eventos suelen verse en unos 20 minutos.\n\nSi el píxel es nuevo, es normal que aparezca sin eventos hasta que ingresen las primeras conversaciones.',
+{t:'comprobar verificar eventos meta recibe administrador de eventos probar eventos diagnostico servidor resumen pixel sin eventos',s:'mix',i:'El detalle de «método de conexión Servidor» y los ~20 minutos vienen de documentación de terceros sobre la API de conversiones.'});
+A('meta','Veo conversaciones iniciadas en Meta pero no aparecen las ventas',
+'Meta cuenta las conversaciones iniciadas desde el clic, pero solo muestra compras cuando recibe el evento de venta con el ctwa_clid del cliente. Revisa:\n1. Que el píxel (conjunto de datos) esté conectado en Chatea PRO y activo en Meta.\n2. Que el cliente haya entrado desde el anuncio y no directo al número o desde WhatsApp Web.\n3. Que el pedido llegue a la etapa que dispara «Comprar»: datos completados, no califica, pedido programado u oficina.\n4. Que en Meta estés mirando el conjunto de datos correcto y un rango de fechas amplio, porque la atribución puede tardar.\n\nPor eso las cifras de Meta y las de Chatea PRO no coinciden exactamente.',
+{t:'conversaciones iniciadas ventas no aparecen meta ads atribucion comprar evento resultados no coincide anuncios',s:'mix'});
+A('meta','¿Cómo creo una campaña que lleve a WhatsApp (anuncio de clic a WhatsApp)?',
+'Desde el Administrador de anuncios de Meta:\n1. Haz clic en «Crear» y elige el objetivo de la campaña.\n2. Ponle un nombre y pulsa «Siguiente».\n3. En «Conversiones» (ubicación de la conversión) elige «Apps de mensajes» y luego «WhatsApp».\n4. Define las fechas (publícalo al menos siete días para mejores resultados) y el presupuesto.\n5. Define el público; un tamaño de entre dos y diez millones de personas suele rendir mejor.\n6. Elige el formato, sube las imágenes, escribe el texto y personaliza las respuestas.\n7. Haz clic en «Publicar».\n\nAntes de publicar, confirma que la página y el número de WhatsApp que elijas sean los que están conectados a Chatea PRO.',
+{t:'crear campana anuncio clic whatsapp administrador de anuncios ads manager conversiones apps de mensajes presupuesto publico publicar',s:'meta',i:'Pasos tomados de la guía oficial de WhatsApp Business. Meta cambia con frecuencia los menús del Administrador de anuncios.',l:[L.adsMk,L.obj]});
+A('meta','¿Qué objetivo de campaña elijo para vender por WhatsApp?',
+'Los anuncios de clic a WhatsApp se pueden crear con varios objetivos (por ejemplo Interacción, Clientes potenciales y Ventas). Como orientación:\n• Interacción: es lo más directo si tu prioridad es iniciar conversaciones.\n• Ventas: sirve para que Meta optimice hacia compras, pero solo funciona bien si los eventos de compra le están llegando, que es justo lo que envía Chatea PRO.\n• Clientes potenciales: útil si optimizas por conversaciones calificadas, también con eventos conectados.\n\nMeta ajusta los objetivos disponibles con frecuencia; revisa cuáles aparecen en tu cuenta.',
+{t:'objetivo campana interaccion ventas clientes potenciales trafico whatsapp mensajes optimizar conversiones meta ads',s:'web',i:'Es una orientación tomada de guías de terceros; las guías no coinciden del todo en qué objetivos admiten WhatsApp. No lo presentes como regla oficial de Meta.',l:[L.obj]});
+A('meta','No me aparece WhatsApp como destino al crear mi anuncio',
+'Verifica que tu cuenta de WhatsApp esté vinculada a tu página de Facebook desde Configuración del negocio > Cuentas > Cuentas de WhatsApp, y que el número esté verificado y sea el del equipo que atenderá el chat. Si acabas de vincularlo, cierra sesión, vuelve a entrar y actualiza el Administrador de anuncios. Si Meta pide verificar un teléfono a nivel de la cuenta publicitaria (código #3858013), completa ese paso primero.',
+{t:'whatsapp no aparece destino anuncio cta boton enviar mensaje vincular pagina numero cuenta publicitaria no deja publicar',s:'web'});
+A('meta','¿Dónde consulto la ayuda oficial de Meta o hablo con soporte?',
+'El Centro de ayuda de Meta para empresas está en es-la.facebook.com/business/help. Para hablar con una persona: Business Manager > Ayuda > Contactar soporte > Hablar con un agente. Para saber si hay una caída general, revisa metastatus.com/whatsapp-business-api.',
+{t:'ayuda oficial meta centro de ayuda soporte hablar agente contactar business help metastatus caida',s:'mix',i:'El Centro de ayuda de Meta bloquea la lectura automática, así que las respuestas de esta sección se basan en documentación de Meta for Developers, en WhatsApp Business y en guías públicas; verifica los pasos contra el Centro de ayuda si vas a citar algo textual.',l:[L.help,L.status]});
+
+/* --- Migración e integraciones --- */
+A('migra','¿Cómo migro mi espacio de trabajo?',
+'Usa el nuevo método de migración, en cuatro partes:\n1. Consejos.\n2. Crear cuenta y reconexión de activos.\n3. Reinstalar tus asistentes.\n4. Solicitar la migración de tu plan.\n\nTe dejo los cuatro videos.',
+{t:'migrar migracion espacio de trabajo cuenta nueva reinstalar asistentes plan reconexion activos',l:[['Parte 1: Consejos','https://www.loom.com/share/b9c9c956e46c4a00b75cd2a0c226b4f6'],['Parte 2: Crear cuenta y reconexión','https://www.loom.com/share/b4e7bce448ac4db1ba8b11db72ec17ec'],['Parte 3: Reinstala tus asistentes','https://www.loom.com/share/cf8cfbf36f8b4153819526eb42074a2f'],['Parte 4: Solicita la migración del plan','https://www.loom.com/share/5df66cec51ea4c3bae225df4a42090fa']]});
+A('migra','¿Cómo copio un desarrollo personalizado a otro espacio?',
+'En Panel principal > Mis contenidos > Mis plantillas de bot, crea la primera plantilla, haz clic en el bot y selecciona «plantilla de subflujo» > «desarrollos personalizados». Continúa con «siguiente paso» dos veces, ponle nombre y crea la plantilla de subflujo. Al terminar la migración, en Panel > Mis contenidos pulsa la flecha junto a «Editar información», copia la URL, pégala en el navegador, instala la plantilla > Instalar > Siguiente paso > Bot > Instalar ahora.\n\nAdemás, en la nueva versión elimina Cloudinary y las palabras clave de la versión antigua.',
+{t:'copiar desarrollo personalizado migracion plantilla subflujo mis contenidos url instalar cloudinary palabras clave antiguas'});
+A('migra','¿Cómo integro Confío con Chatea PRO?',
+'1. En Chatea PRO, entra a Integraciones, selecciona Confío y pulsa «Conectar».\n2. Ingresa o crea tu cuenta de Confío verificando con WhatsApp.\n3. Copia el token de la tarjeta en Chatea PRO.\n4. Pega el token dentro de Integraciones en Confío.\n5. Haz clic en «Activar integración».',
+{t:'confio integracion conectar token activar ecosistema pagos',i:'Tomado de una imagen del documento; confirma que el flujo siga vigente.'});
+A('migra','¿Cómo integro Google Maps para confirmar direcciones?',
+'Sigue este tutorial en video hasta el minuto 6:45. Con la integración, el asistente puede confirmar la dirección de entrega con Google Maps.',
+{t:'google maps integrar direccion confirmar tutorial',l:[['Tutorial de Google Maps','https://www.youtube.com/watch?v=up2Dc5-LLq8']]});
+A('migra','¿Cómo integro OpenAI, Dropi, Shopify o Meta Conversions? (guías de instalación)',
+'Aquí tienes los videos para cada integración: Dropi, OpenAI, Shopify y Meta Conversions. Sigue el paso a paso tal cual; en Shopify usa el dominio que aparece en la URL de tu tienda.',
+{t:'guias integrar integracion openai dropi shopify meta conversions videos instalacion whatsapp api',l:[L.dropi,L.oai,L.shop,['Video: integrar Meta Conversions','https://storage.googleapis.com/chateapro-assistant-tutorials/integraciones-requeridas/Integraciones_%20Meta%20conversions%20API.mp4']]});
+
+/* ---------- Utilidades ---------- */
+function $(s){return document.querySelector(s)}
+function norm(s){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var store={
+ get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+ set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+var STOP=['de','la','el','en','y','a','que','un','una','los','las','me','mi','no','se','por','con','para','es','lo','al','del','le','mis','su'];
+var SYN={
+ baneo:['bloqueo','suspendido','suspension','restringido','inhabilitado','deshabilitado'],
+ baneado:['bloqueo','suspendido','restringido'],
+ bloqueado:['baneo','restringido','suspendido'],
+ bloqueo:['baneo','suspendido'],
+ lento:['demora','tarda','tiempo respuesta'],
+ demora:['lento','tarda'],
+ caro:['cobro','precio','costo','tarifa'],
+ cobro:['precio','costo','tarifa','factura'],
+ cobran:['cobro','precio','tarifa'],
+ plantilla:['template','plantillas'],
+ template:['plantilla'],
+ audio:['voz','elevenlabs'],
+ voz:['audio','elevenlabs'],
+ clave:['api key','key'],
+ llave:['api key','clave'],
+ pedido:['orden'],
+ orden:['pedido'],
+ carrito:['abandonado','carritos'],
+ usuarios:['contactos','clientes'],
+ limite:['tope','limit'],
+ imagen:['foto','multimedia'],
+ foto:['imagen','perfil'],
+ pago:['cobro','saldo','wallet','metodo pago'],
+ saldo:['credito','recarga','pago'],
+ recarga:['saldo','credito'],
+ masivo:['difusion','broadcast'],
+ masivos:['difusion','broadcast'],
+ difusion:['masivo','broadcast'],
+ transportadora:['envio','flete','guia'],
+ flete:['transportadora'],
+ comentarios:['fanpage','fan page','post'],
+ tienda:['shopify','ecommerce'],
+ precio:['costo','planes','cobro','tarifa'],
+ planes:['precio','costo'],
+ error:['falla','fallo'],
+ falla:['error'],
+ fallo:['error'],
+ pixel:['conversions','eventos'],
+ caida:['caido','incidencia'],
+ apagado:['detuvo','detenido','parado']
+};
+
+/* ---------- Estado ---------- */
+var prefs=store.get('cp_prefs',null)||{nombre:'',gOn:true,cOn:true,gTxt:'Hola{nombre}, {franja}.',cTxt:'Quedo atento(a) por si necesitas algo más.'};
+var favs=store.get('cp_fav',[]);
+var custom=store.get('cp_custom',[]);
+var st={q:'',cat:'all',src:'all',sel:null};
+var drafts={};
+var all=[];
+
+function build(){
+  all=E.concat(custom.map(function(c){return {id:c.id,c:c.c,q:c.q,a:c.a,k:'',t:c.t||'',s:'mia',i:'',l:[]}}));
+  all.forEach(function(e){
+    e.sid=String(e.id);
+    e.nq=norm(e.q);e.na=norm(e.a);e.nk=norm(e.k);e.nt=norm(e.t+' '+(CATN[e.c]||''));
+  });
+}
+
+/* ---------- Búsqueda ---------- */
+function tokens(q){return norm(q).split(/[^a-z0-9]+/).filter(function(t){return t&&STOP.indexOf(t)<0&&(t.length>1||/\d/.test(t))})}
+function score(e,toks){
+  var s=0;
+  for(var i=0;i<toks.length;i++){
+    var alts=[toks[i]].concat((SYN[toks[i]]||[]).map(norm)),best=0;
+    for(var j=0;j<alts.length;j++){
+      var a=alts[j],w=j?0.5:1,v=0;
+      if(e.nk&&e.nk.indexOf(a)>-1)v=8;
+      else if(e.nq.indexOf(a)>-1)v=6;
+      else if(e.nt.indexOf(a)>-1)v=4;
+      else if(e.na.indexOf(a)>-1)v=2;
+      if(v*w>best)best=v*w;
+    }
+    if(!best)return 0;
+    s+=best;
+  }
+  return s;
+}
+function srcOk(e){
+  if(st.src==='all')return true;
+  if(st.src==='int')return e.s==='int'||e.s==='mix';
+  if(st.src==='ext')return e.s==='meta'||e.s==='web'||e.s==='mix';
+  return e.s==='mia';
+}
+function results(ignoreCat){
+  var toks=tokens(st.q),out=[];
+  all.forEach(function(e,idx){
+    if(!srcOk(e))return;
+    if(!ignoreCat){
+      if(st.cat==='fav'&&favs.indexOf(e.sid)<0)return;
+      if(st.cat!=='all'&&st.cat!=='fav'&&e.c!==st.cat)return;
+    }
+    var sc=toks.length?score(e,toks):1;
+    if(toks.length&&sc>0)sc+=30/(e.q.length+20);
+    if(sc>0)out.push({e:e,sc:sc,idx:idx});
+  });
+  if(toks.length)out.sort(function(a,b){return b.sc-a.sc||a.idx-b.idx});
+  return out;
+}
+function accentRe(t){
+  var m={a:'aáàâä',e:'eéèêë',i:'iíìîï',o:'oóòôö',u:'uúùûü',n:'nñ'};
+  return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/[aeioun]/g,function(c){return '['+m[c]+']'});
+}
+function hlRe(){
+  var toks=tokens(st.q);
+  if(!toks.length)return null;
+  return new RegExp(toks.map(accentRe).join('|'),'gi');
+}
+function hl(text,re){
+  if(!re)return esc(text);
+  var out='',last=0,m;re.lastIndex=0;
+  while((m=re.exec(text))){
+    if(!m[0]){re.lastIndex++;continue}
+    out+=esc(text.slice(last,m.index))+'<mark>'+esc(m[0])+'</mark>';
+    last=m.index+m[0].length;
+  }
+  return out+esc(text.slice(last));
+}
+function snippet(a,re){
+  var f=a.replace(/\s+/g,' ');
+  if(re){re.lastIndex=0;var m=re.exec(f);if(m){var s=Math.max(0,m.index-50);return (s>0?'…':'')+f.slice(s,s+170)+(s+170<f.length?'…':'')}}
+  return f.slice(0,170)+(f.length>170?'…':'');
+}
+
+/* ---------- Render: filtros y lista ---------- */
+var STAR='<svg class="star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Favorito"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z"/></svg>';
+function renderFilters(){
+  var base=results(true),counts={};
+  base.forEach(function(r){counts[r.e.c]=(counts[r.e.c]||0)+1});
+  var favN=base.filter(function(r){return favs.indexOf(r.e.sid)>-1}).length;
+  var h='<button class="chip" type="button" data-cat="all" aria-pressed="'+(st.cat==='all')+'">Todo<small>'+base.length+'</small></button>';
+  h+='<button class="chip'+(favN?'':' zero')+'" type="button" data-cat="fav" aria-pressed="'+(st.cat==='fav')+'">Favoritos<small>'+favN+'</small></button>';
+  CATS.forEach(function(c){
+    var n=counts[c[0]]||0;
+    h+='<button class="chip'+(n?'':' zero')+'" type="button" data-cat="'+c[0]+'" aria-pressed="'+(st.cat===c[0])+'">'+esc(c[1])+'<small>'+n+'</small></button>';
+  });
+  h+='<span class="sep" aria-hidden="true"></span>';
+  [['all','Todas las fuentes'],['int','Internas'],['ext','Meta y externas'],['mia','Mías']].forEach(function(s){
+    h+='<button class="chip" type="button" data-src="'+s[0]+'" aria-pressed="'+(st.src===s[0])+'">'+s[1]+'</button>';
+  });
+  $('#filters').innerHTML=h;
+}
+function rowHtml(r,re){
+  var e=r.e,fav=favs.indexOf(e.sid)>-1;
+  var pill=e.s==='int'?'':'<span class="pill '+(e.s==='mia'?'mia':'ext')+'">'+SRC[e.s]+'</span>';
+  return '<li><button class="row" type="button" data-id="'+e.sid+'" aria-current="'+(st.sel===e.sid)+'">'+
+   '<span class="rt">'+(e.k?'<span class="code">'+esc(e.k)+'</span>':'')+'<span>'+hl(e.q,re)+'</span>'+(fav?STAR:'')+'</span>'+
+   '<span class="rs">'+hl(snippet(e.a,re),re)+'</span>'+
+   '<span class="rm"><span>'+esc(CATN[e.c]||'')+'</span>'+pill+'</span></button></li>';
+}
+function renderList(){
+  var res=results(false),re=hlRe(),h='';
+  var hasQ=st.q.trim().length>0;
+  document.body.classList.toggle('has-q',hasQ);
+  $('#count').textContent=res.length+(res.length===1?' respuesta':' respuestas')+(hasQ?' para «'+st.q.trim()+'»':'');
+  if(!res.length){
+    h='<li class="empty"><strong>No encontré respuestas'+(hasQ?' para «'+esc(st.q.trim())+'»':' con estos filtros')+'.</strong><br>Prueba con el código de error, con una palabra del síntoma, o quita los filtros. Si es un caso nuevo, pídele a Claude en el chat que lo redacte y agrégalo con «+ Mi respuesta».</li>';
+  }else if(!hasQ&&st.cat==='all'){
+    var last='';
+    CATS.forEach(function(c){
+      var g=res.filter(function(r){return r.e.c===c[0]});
+      if(!g.length)return;
+      h+='<li class="group" role="presentation">'+esc(c[1])+'<span>'+g.length+'</span></li>';
+      g.forEach(function(r){h+=rowHtml(r,re)});
+    });
+  }else{
+    res.forEach(function(r){h+=rowHtml(r,re)});
+  }
+  $('#list').innerHTML=h;
+}
+
+/* ---------- Render: detalle / redactor ---------- */
+function franja(){var h=new Date().getHours();return h<12?'buen día':h<19?'buenas tardes':'buenas noches'}
+function greetText(){
+  var n=prefs.nombre.trim();
+  return prefs.gTxt.replace('{nombre}',n?' '+n:'').replace('{franja}',franja());
+}
+function byId(sid){for(var i=0;i<all.length;i++)if(all[i].sid===sid)return all[i];return null}
+function renderDetail(){
+  var box=$('#detail'),e=st.sel?byId(st.sel):null;
+  if(!e){box.innerHTML='<div class="placeholder">Elige una respuesta de la lista para armar el mensaje al cliente.</div>';return}
+  var fav=favs.indexOf(e.sid)>-1;
+  var body=drafts[e.sid]!=null?drafts[e.sid]:e.a;
+  var h='<button class="btn back" id="back" type="button">← Volver a la lista</button>';
+  h+='<div class="d-meta">'+(e.k?'<span class="code">'+esc(e.k)+'</span>':'')+'<span>'+esc(CATN[e.c]||'')+'</span><span class="pill '+(e.s==='mia'?'mia':(e.s==='int'?'':'ext'))+'">'+SRC[e.s]+'</span></div>';
+  h+='<h2 class="d-title">'+esc(e.q)+'</h2>';
+  h+='<div class="who"><label for="nombre">Nombre del cliente</label><input id="nombre" type="text" value="'+esc(prefs.nombre)+'" placeholder="Opcional" autocomplete="off"></div>';
+  h+='<p class="ready-label">Respuesta lista para el cliente</p>';
+  h+='<div class="bubble">';
+  h+='<label class="line'+(prefs.gOn?'':' off')+'"><input type="checkbox" id="gOn"'+(prefs.gOn?' checked':'')+'><span id="gShow">'+esc(greetText())+'</span></label>';
+  h+='<textarea id="body" aria-label="Texto de la respuesta">'+esc(body)+'</textarea>';
+  h+='<label class="line'+(prefs.cOn?'':' off')+'"><input type="checkbox" id="cOn"'+(prefs.cOn?' checked':'')+'><span>'+esc(prefs.cTxt)+'</span></label>';
+  h+='</div>';
+  h+='<div class="actions"><button class="btn primary" id="copy" type="button">Copiar mensaje</button>';
+  h+='<button class="btn" id="reset" type="button">Restaurar texto</button>';
+  h+='<button class="btn" id="fav" type="button" aria-pressed="'+fav+'">'+(fav?'Quitar de favoritos':'Guardar en favoritos')+'</button>';
+  if(e.s==='mia')h+='<button class="btn" id="del" type="button">Eliminar</button>';
+  h+='</div><p class="hint">Puedes editar el texto antes de copiar. Los cambios no modifican la respuesta original.</p>';
+  h+='<p class="source"><strong>Fuente:</strong> '+esc(SRC_FULL[e.s]||SRC_FULL.int)+'</p>';
+  h+='<details class="cfg"><summary>Personalizar saludo y cierre</summary>'+
+     '<label for="gTxt">Saludo (usa {nombre} y {franja})</label><input id="gTxt" type="text" value="'+esc(prefs.gTxt)+'">'+
+     '<label for="cTxt">Cierre</label><input id="cTxt" type="text" value="'+esc(prefs.cTxt)+'"></details>';
+  if(e.i)h+='<div class="internal"><b>Solo para ti (no se copia):</b> '+esc(e.i)+'</div>';
+  if(e.l&&e.l.length){
+    h+='<ul class="links">';
+    e.l.forEach(function(l){h+='<li><a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+esc(l[0])+'</a></li>'});
+    h+='</ul><p class="hint">Copia el enlace con clic derecho si vas a enviarlo al cliente.</p>';
+  }
+  box.innerHTML=h;
+  fit();
+}
+function fit(){var t=$('#body');if(t){t.style.height='auto';t.style.height=Math.max(160,t.scrollHeight+4)+'px'}}
+function composed(){
+  var e=byId(st.sel);if(!e)return '';
+  var parts=[];
+  if(prefs.gOn)parts.push(greetText());
+  parts.push($('#body').value.trim());
+  if(prefs.cOn)parts.push(prefs.cTxt);
+  return parts.filter(Boolean).join('\n\n');
+}
+
+/* ---------- Acciones ---------- */
+var toastT;
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},1800)}
+function copyText(txt){
+  function fallback(){
+    var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}
+    document.body.removeChild(ta);toast(ok?'Mensaje copiado':'No se pudo copiar: selecciona el texto y cópialo');
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Mensaje copiado')},fallback)}else fallback();
+}
+function select(sid,open){
+  st.sel=sid;
+  try{history.replaceState(null,'','#e'+sid)}catch(e){}
+  renderList();renderDetail();
+  if(open)document.body.classList.add('has-detail');
+}
+function closeDetail(){document.body.classList.remove('has-detail')}
+function refresh(){renderFilters();renderList()}
+function savePrefs(){store.set('cp_prefs',prefs)}
+
+/* ---------- Eventos ---------- */
+$('#q').addEventListener('input',function(e){st.q=e.target.value;refresh()});
+$('#clear').addEventListener('click',function(){st.q='';$('#q').value='';refresh();$('#q').focus()});
+$('#filters').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.cat)st.cat=b.dataset.cat;
+  if(b.dataset.src)st.src=b.dataset.src;
+  refresh();
+});
+$('#list').addEventListener('click',function(e){
+  var b=e.target.closest('.row');if(b)select(b.dataset.id,true);
+});
+$('#list').addEventListener('keydown',function(e){
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;
+  var rows=[].slice.call(document.querySelectorAll('.row')),i=rows.indexOf(document.activeElement);
+  if(i<0)return;e.preventDefault();
+  var n=rows[i+(e.key==='ArrowDown'?1:-1)];
+  if(n)n.focus();else if(e.key==='ArrowUp')$('#q').focus();
+});
+$('#q').addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'){var r=document.querySelector('.row');if(r){e.preventDefault();r.focus()}}
+  if(e.key==='Enter'){var r2=document.querySelector('.row');if(r2)select(r2.dataset.id,true)}
+  if(e.key==='Escape'&&st.q){st.q='';e.target.value='';refresh()}
+});
+document.addEventListener('keydown',function(e){
+  var tag=(document.activeElement&&document.activeElement.tagName)||'';
+  if(e.key==='/'&&tag!=='INPUT'&&tag!=='TEXTAREA'&&tag!=='SELECT'){e.preventDefault();$('#q').focus();$('#q').select()}
+  if(e.key==='Escape'&&document.body.classList.contains('has-detail')&&!$('#dlg').open)closeDetail();
+});
+$('#detail').addEventListener('input',function(e){
+  var id=e.target.id;
+  if(id==='body'){drafts[st.sel]=e.target.value;fit()}
+  if(id==='nombre'){prefs.nombre=e.target.value;savePrefs();var g=$('#gShow');if(g)g.textContent=greetText()}
+  if(id==='gTxt'){prefs.gTxt=e.target.value||'Hola{nombre}, {franja}.';savePrefs();var g2=$('#gShow');if(g2)g2.textContent=greetText()}
+  if(id==='cTxt'){prefs.cTxt=e.target.value;savePrefs();var c=document.querySelector('#cOn+span');if(c)c.textContent=prefs.cTxt}
+});
+$('#detail').addEventListener('change',function(e){
+  if(e.target.id==='gOn'){prefs.gOn=e.target.checked;savePrefs();e.target.parentNode.classList.toggle('off',!prefs.gOn)}
+  if(e.target.id==='cOn'){prefs.cOn=e.target.checked;savePrefs();e.target.parentNode.classList.toggle('off',!prefs.cOn)}
+});
+var delArm=false,delT;
+$('#detail').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.id==='back')closeDetail();
+  if(b.id==='copy')copyText(composed());
+  if(b.id==='reset'){delete drafts[st.sel];renderDetail();toast('Texto restaurado')}
+  if(b.id==='fav'){
+    var i=favs.indexOf(st.sel);
+    if(i>-1)favs.splice(i,1);else favs.push(st.sel);
+    store.set('cp_fav',favs);renderDetail();refresh();
+  }
+  if(b.id==='del'){
+    if(!delArm){delArm=true;b.textContent='¿Seguro? Toca de nuevo';clearTimeout(delT);delT=setTimeout(function(){delArm=false;if(b.isConnected)b.textContent='Eliminar'},3000);return}
+    custom=custom.filter(function(c){return String(c.id)!==st.sel});
+    favs=favs.filter(function(f){return f!==st.sel});
+    store.set('cp_custom',custom);store.set('cp_fav',favs);
+    st.sel=null;delArm=false;closeDetail();build();refresh();renderDetail();toast('Respuesta eliminada');
+  }
+});
+
+/* --- Diálogo: mi respuesta --- */
+var dlg=$('#dlg');
+$('#n-cat').innerHTML=CATS.map(function(c){return '<option value="'+c[0]+'">'+esc(c[1])+'</option>'}).join('');
+$('#add').addEventListener('click',function(){
+  $('#n-q').value=st.q.trim();$('#n-a').value='';$('#n-t').value='';$('#n-err').textContent='';
+  if(st.cat!=='all'&&st.cat!=='fav')$('#n-cat').value=st.cat;
+  if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');
+  $('#n-q').focus();
+});
+$('#n-cancel').addEventListener('click',function(){dlg.close()});
+$('#n-save').addEventListener('click',function(){
+  var q=$('#n-q').value.trim(),a=$('#n-a').value.trim();
+  if(!q||!a){$('#n-err').textContent='Escribe la pregunta y la respuesta para guardar.';return}
+  var id='u'+Date.now();
+  custom.push({id:id,c:$('#n-cat').value,q:q,a:a,t:$('#n-t').value.trim()});
+  store.set('cp_custom',custom);
+  dlg.close();build();
+  st.q='';$('#q').value='';st.cat='all';st.src='all';
+  refresh();select(id,true);toast('Respuesta guardada en este navegador');
+});
+
+/* ---------- Inicio ---------- */
+function setHdr(){document.documentElement.style.setProperty('--hdr',$('#top').offsetHeight+'px')}
+window.addEventListener('resize',setHdr);
+if(window.ResizeObserver)new ResizeObserver(setHdr).observe($('#top'));
+build();refresh();renderDetail();setHdr();
+var m=location.hash.match(/^#e(.+)$/);
+if(m&&byId(m[1]))select(m[1],false);
+if(window.matchMedia&&matchMedia('(hover:hover) and (min-width:900px)').matches)$('#q').focus();
+})();
+</script>
+</body>
+</html>
